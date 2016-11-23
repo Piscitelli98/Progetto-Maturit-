@@ -1,0 +1,6 @@
+http://stackoverflow.com/questions/18614250/how-to-display-database-content-on-android-listview
+http://stackoverflow.com/questions/8656901/populating-a-listview-from-a-sqlite-database
+http://android.devapp.it/t012-%E2%80%93-popolare-listview-con-elementi-prelevati-da-un-database-sqlite-nelle-applicazioni-android
+http://www.androidworld.it/2012/04/17/activity-database-e-listview-come-organizzare-i-nostri-dati-83747/ù
+http://www.mysamplecode.com/2012/07/android-listview-cursoradapter-sqlite.html
+http://www.anddev.it/index.php?topic=10520.0
