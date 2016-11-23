@@ -8,4 +8,9 @@
 - Database su arduino
 	Link: http://playground.arduino.cc/Code/DatabaseLibrary --> 
 	Link: http://playground.arduino.cc/Code/ExtendedDatabaseLibrary
-	
+- Display LCD
+	Link: http://www.maffucci.it/2012/02/17/appunti-su-arduino-pilotare-un-display-lcd/ --> come utilizzare il display
+- Motorino Step to Step
+	Link: https://www.youtube.com/watch?v=9Rt8aZRBh0M --> tutorial youtube e collegamenti
+	Link: http://www.logicaprogrammabile.it/motore-passo-passo-bipolare-driver-l298n/ --> link con codice
+	Link: http://www.ivanbortolin.it/?p=1184 --> link con codice
