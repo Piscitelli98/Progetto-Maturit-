@@ -1,4 +1,4 @@
-# Progetto-Maturit-
+# Progetto Maturità
 Cassaforte
 Titolo: Cassaforte con Arduino.
 Gruppo: Perego Daniele, Piscitelli Federico, Leggio Giuseppe.
