@@ -4,3 +4,4 @@ http://android.devapp.it/t012-%E2%80%93-popolare-listview-con-elementi-prelevati
 http://www.androidworld.it/2012/04/17/activity-database-e-listview-come-organizzare-i-nostri-dati-83747/ù
 http://www.mysamplecode.com/2012/07/android-listview-cursoradapter-sqlite.html
 http://www.anddev.it/index.php?topic=10520.0
+https://drive.google.com/file/d/0BzvV1wN-WHWwWG5LQm01ZnNJTzQ/edit
