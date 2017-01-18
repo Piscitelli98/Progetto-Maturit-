@@ -16,3 +16,5 @@
 	Link: http://www.ivanbortolin.it/?p=1184 --> link con codice
 - Libreria e montaggio Clock
 	Link: http://www.mauroalfieri.it/elettronica/rtc-ds3231-per-arduino.html -->montaggio
+- Libreria e utilizo Time
+	Link: http://playground.arduino.cc/Code/DateTime -->anche comandi
