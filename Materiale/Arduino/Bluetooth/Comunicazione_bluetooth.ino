@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 
+//NOTA IMPORTANTE, il piedino rx e tx del modulo HC-06 vano collegati rispettivamente al tx e rx di arduino(rx va con tx e tx con rc, si invertono)
 const int rxpin = 2;  //Andiamo ad assegnare al pin 2 l’indirizzo di ricezione dati (e lo colleghiamo al pin TXD del modulo)
 const int txpin = 3;  //Assegnamo invece al pin 3 l’indirizzo di trasmissione dati (collegandolo al pin RXD del nostro componente
 SoftwareSerial bluetooth(rxpin, txpin);  //Assegnamo ad un nome (bluetooth) i suoi pin di ricezione e trasmissione, per facilitarci la scrittura del codice
