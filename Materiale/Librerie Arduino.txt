@@ -20,3 +20,4 @@
 	Link: http://playground.arduino.cc/Code/DateTime -->anche comandi
 - Bluetooth
 	Link: http://www.giuseppecaccavale.it/arduino/hc-06-bluetooth-arduino/ -->montaggio
+	Link: http://www.omegastore.biz/blog/tutorial/arduino-moduli-bluetooth-hc-05-e-hc-06-guida-at-mode-e-utilizzo -->spiegazione
