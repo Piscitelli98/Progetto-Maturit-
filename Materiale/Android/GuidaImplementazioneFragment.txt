@@ -1,0 +1,72 @@
+- Creare tre layout copiando e rinominando il file fragment_main.xml all'interno della cartella layout.
+- All'interno della cartella contenente la classe MainActivty.java, creare altre tre classi riferite ai tre fragment creati prima.
+  Copiare questo codicenelle classi create:
+	import android.support.v4.view.ViewPager;
+	import android.os.Bundle;
+	import android.view.LayoutInflater;
+	import android.view.View;
+	import android.view.ViewGroup;
+  	
+ public class nomeClasseCreata extends Fragment{
+ 	 @Override
+         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.nomeLayoutACuiSiVuoleAssociareQuestaLCasse, container, false);
+            return rootView;
+        }
+ 
+ }
+
+- Eliminare questa porzione di codice dalla classe MainActivity.java:
+/**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            return rootView;
+        }
+    }
+- Modificare metodo getItem(int position) nel seguente modo per assegnare la classeda richiamare:
+	Gli oggetti creati devono essere oggetti delle tre classi creati in precedenza.
+	@Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                  ClasseTab1 tab1= new ClasseTab1();
+                    return tab1;
+                case 1:
+                    ClasseTab2 tab2= new ClasseTab2();
+                    return tab2;
+                case 2:
+                    ClasseTab3 tab3= new ClasseTab3();
+                    return tab3;
+            }
+            return null;
+        }
+	
+	
