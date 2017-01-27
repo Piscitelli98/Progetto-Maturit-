@@ -27,3 +27,5 @@
 - Comunicazione tra due Arduino
 	Link: http://www.danielealberti.it/2014/06/comunicazione-tra-2-arduino.html
 	Link: http://www.mauroalfieri.it/elettronica/comunicazione-i2c-arduino-to-arduino.html
+	Link: https://forum.arduino.cc/index.php?topic=164484.0
+	
