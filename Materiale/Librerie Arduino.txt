@@ -22,4 +22,7 @@
 	Link: http://www.giuseppecaccavale.it/arduino/hc-06-bluetooth-arduino/ -->montaggio
 	Link: http://www.omegastore.biz/blog/tutorial/arduino-moduli-bluetooth-hc-05-e-hc-06-guida-at-mode-e-utilizzo -->spiegazione
 - Ricezione dati da arduino
-	link: http://www.androidworld.it/forum/app-inventor-91/ricezione-dati-da-arduino-via-bt-145181/
+	Link: http://www.androidworld.it/forum/app-inventor-91/ricezione-dati-da-arduino-via-bt-145181/
+- Comunicazione tra due Arduino
+	Link: http://www.danielealberti.it/2014/06/comunicazione-tra-2-arduino.html
+	Link: http://www.mauroalfieri.it/elettronica/comunicazione-i2c-arduino-to-arduino.html
