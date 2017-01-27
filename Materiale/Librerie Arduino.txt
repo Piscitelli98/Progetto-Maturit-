@@ -2,6 +2,7 @@
 	Link: https://github.com/Chris--A/Keypad --> Progetto su GitHub
 	Link: http://playground.arduino.cc/Code/Keypad --> Sito Arduino con tutorial e link all'indirizzo sopra(Github)
 	Link: http://ismanettoneblog.altervista.org/blog/lezione-8-utilizziamo-il-keypad-con-arduino/
+	Link: http://wooo.altervista.org/parametri-password-arduino-lcd-keypad/ -->esempio
 - Data Logger
 	Link: https://www.arduino.cc/en/Tutorial/Datalogger --> sito arduino
 	Link: https://github.com/greiman?tab=repositories --> github
