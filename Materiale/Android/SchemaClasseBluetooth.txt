@@ -1,0 +1,33 @@
+-Attributi:
+UUID
+//questi tre attributi servono a identificare il device a cui ci si vuole connettere e creare con esso una socket bluetooth per comunicare con esso
+BluetoothAdapter adapter
+BluetoothDeivice device
+BluetoothSocket socket
+
+BluetoothAdapter :
+- Permette il rilevamento dei dispositivi, interrogare un elenco dei dispositivi legati (accoppiati), un'istanza di un BluetoothDevice utilizzando un noto indirizzo MAC, 
+  e creare un BluetoothServerSocket per ascoltare le richieste di connessione da altri dispositivi, e avviare una ricerca dei dispositivi Bluetooth LE.
+- Creare l'adattatore:
+  su JELLY_BEAN_MR1 e al di sotto, chiamare il metodo BluetoothAdapter.getDefaultAdapter statico ();
+  se in esecuzione su JELLY_BEAN_MR2 e superiori, chiamare getAdapter ().
+- Fondamentalmente, questo è il punto di partenza per tutte le azioni Bluetooth. Una volta che hai l'adattatore locale, è possibile ottenere una serie di oggetti che
+  rappresentano BluetoothDevice tutti i dispositivi associati con getBondedDevices (); iniziare rilevamento dei dispositivi con startDiscovery ();
+  o creare un BluetoothServerSocket per ascoltare le richieste di connessione in ingresso con listenUsingRfcommWithServiceRecord (String, UUID); 
+
+- Una volta creato l'adattatore gli devo associare il device remoto, ovvero nel nostro caso la scheda arduino; questo sarà possibile tramite l'istruzione: 
+   mmDevice = mBluetoothAdapter.getRemoteDevice(  "98:D3:35:00:AD:1D" );//è sempre la chiamata di una classe statica
+- Ora bisogna creare la socket e per farlo abbiamo bisogno dell'oggetto BluetoothDevice e dell'uuid
+
+- Per creare un BluetoothSocket per il collegamento a un dispositivo chiamato, utilizzare BluetoothDevice.createRfcommSocketToServiceRecord ("UUID"). 
+  Quindi objSocket.connect() per tentare una connessione al dispositivo remoto. 
+  Usando questo metodo di connessione sulla porta RFCOMM del dispositivo bluetooth permetteremo una sola connessione al server, cioè sarà utilizzabile solo da esso
+  fino alla fine della connessione.
+
+- COntrolli da eseguire:
+  tramite l'adaptor: 
+		verifico che il dispositivo supporti il bluetooth
+		verifico che il bluetooth sia abilitato
+  se ciò è tutto ok tento la connessione controllando che vada a buon fine 
+infine chiudo la comunicazione.
+  
