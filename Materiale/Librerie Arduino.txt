@@ -28,4 +28,4 @@
 	Link: http://www.danielealberti.it/2014/06/comunicazione-tra-2-arduino.html
 	Link: http://www.mauroalfieri.it/elettronica/comunicazione-i2c-arduino-to-arduino.html
 	Link: https://forum.arduino.cc/index.php?topic=164484.0
-	
+	Link: https://todbot.com/blog/2010/09/25/softi2cmaster-add-i2c-to-any-arduino-pins/comment-page-2/
