@@ -29,3 +29,6 @@
 	Link: http://www.mauroalfieri.it/elettronica/comunicazione-i2c-arduino-to-arduino.html
 	Link: https://forum.arduino.cc/index.php?topic=164484.0
 	Link: https://todbot.com/blog/2010/09/25/softi2cmaster-add-i2c-to-any-arduino-pins/comment-page-2/
+- Implementazione DB
+	Link: http://playground.arduino.cc/Code/ExtendedDatabaseLibrary
+	Link: https://blog.brauingenieur.de/2014/01/20/extended-database-library-using-an-sd-card/
