@@ -32,3 +32,4 @@
 - Implementazione DB
 	Link: http://playground.arduino.cc/Code/ExtendedDatabaseLibrary
 	Link: https://blog.brauingenieur.de/2014/01/20/extended-database-library-using-an-sd-card/
+	Link: https://github.com/jwhiddon/EDB
