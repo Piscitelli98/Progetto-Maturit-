@@ -14,5 +14,5 @@ note right of utente: utente preme il tasto login
 appAndroid->cassaforte: login_request;username;password
 cassaforte->appAndroid: login_response;esito
 note left of cassaforte: esito risponde con un boolean \ntrue o false \nla password sarà salvata in md5
-
+appAndroid->cassaforte: disconnessione
 note left of appAndroid: effettua la login e passa \nalla activity successiva
