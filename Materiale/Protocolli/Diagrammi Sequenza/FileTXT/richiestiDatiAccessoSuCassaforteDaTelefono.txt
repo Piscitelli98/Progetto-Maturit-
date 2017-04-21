@@ -1,0 +1,20 @@
+title cassaforte 2.0 Diagramma di sequenza caso richiestDatiAccesso
+
+participant utente
+participant appAndroid
+participant cassaforte
+
+note right of utente: utente preme il tasto che scarica i dati \ndopo aver effettuato la login
+appAndroid->cassaforte: connessione
+cassaforte->appAndroid: connesso
+appAndroid->cassaforte: get_datiLog_request;username;DGiorno-DMese-DAnno
+cassaforte->appAndroid: get_datiLog_response;codErr;
+note right of appAndroid: codiceErr è un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore
+note right of cassaforte: se non ci sono errori appAndroid \nrimane in attesa di una serie di \nmessaggi pari al numero di \nregistrazioni avvenute in quella giornata
+cassaforte->appAndroid: get_datiLog;idUser;nomeUser;oraAccesso-mimutiAccesso-secondiAccesso;
+cassaforte->appAndroid: get_datiLog;idUser;nomeUser;oraAccesso-mimutiAccesso-secondiAccesso;
+cassaforte->appAndroid: get_datiLog;idUser;nomeUser;oraAccesso-mimutiAccesso-secondiAccesso;
+cassaforte->appAndroid: ...
+cassaforte->appAndroid: get_datiLog_end;
+note right of appAndroid: get_datiLog_end dice ad appAndroid che i messaggi sono finiti.
+appAndroid->cassaforte: disconnessione
