@@ -1,0 +1,16 @@
+title cassaforte 2.0 Diagramma di sequenza caso apriDaTelefono
+
+participant utente
+participant appAndroid
+participant cassaforte
+
+
+appAndroid->cassaforte: connessione
+cassaforte->appAndroid: connesso
+
+note right of utente: utente preme il tasto apri cassaforte \ndopo aver effettuato la login
+
+appAndroid->cassaforte: open_request;username;pin
+note right of cassaforte: username dell'utente che apre la cassaforte \npin per aprire la cassaforte
+cassaforte->appAndroid: open_response;codiceErr
+note right of appAndroid: codiceErr è un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore.
