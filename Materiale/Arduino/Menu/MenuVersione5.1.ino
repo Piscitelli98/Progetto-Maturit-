@@ -3,27 +3,15 @@
 #include <DS3232RTC.h>   
 #include <TimeLib.h>         
 #include <Wire.h>  
-#include <Adafruit_Fingerprint.h>
 
-//imprinte digitali
-//collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
-int getFingerprintIDez();
-Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
-boolean esitoLettura=false;
-int idLettura=-1;
-
-
-//lcd, configurazione e collegamenti
-//VSS->gnd | VDD->vcc | V0->potenziometro | RS->7 | RW->gnd | E->6 | D4->5 | D5->4 | D6->3 | D7->2 | A->vcc330Hom | K->gnd
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
 //LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 int stato=0;
 String lettura="";
-boolean chiuso=true;
+
 //pin motorini serratura
 int m0=50, m1=51, m2=52, m3=53;
 long secondiStop=0;
-int minutiCambioOra=0;
 int tempoApertChius=10;
 
 
@@ -35,8 +23,8 @@ char keys[ROWS][COLS] = {
   {'7','8','9'},
   {'*','0','#'}
 };
-byte rowPins[ROWS] = {22, 23, 24, 25}; //connect to the row pinouts of the keypad 2-7-6-4 || 4-5-6-7
-byte colPins[COLS] = {26, 27, 28}; //connect to the column pinouts of the keypad 3-1-5 || 1-2-3
+byte rowPins[ROWS] = {22, 23, 24, 25}; //connect to the row pinouts of the keypad 2-7-6-4
+byte colPins[COLS] = {26, 27, 28}; //connect to the column pinouts of the keypad 3-1-5
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
@@ -62,26 +50,11 @@ void setup(){
   digitalWrite(m2, LOW);
   digitalWrite(m3, LOW);
 
-//rtc
     setSyncProvider(RTC.get);   // the function to get the time from the RTC
     if(timeStatus() != timeSet) 
         Serial.println("Unable to sync with the RTC");
     else
         Serial.println("RTC has set the system time"); 
-
-//sensore impronte digitali
-  finger.begin(57600);
-  
-  if (finger.verifyPassword()) {
-    Serial.println("Found fingerprint sensor!");
-  } else {
-    Serial.println("Did not find fingerprint sensor :(");
-    while (1);
-  }
-  Serial.println("Waiting for valid finger...");
-
-        stampaData(); 
-        minutiCambioOra=minute();
 }
 
 
@@ -201,151 +174,39 @@ void  indietro(){
     fase1();
   }
 
- //metodo per portare tutte le bobine del motorino a LOW 
-void tuttoSpento(){
-      digitalWrite(m0, LOW);
-    digitalWrite(m1, LOW);
-    digitalWrite(m2, LOW);
-    digitalWrite(m3, LOW);
-  }
-//problema riscontrato: calcolo basato sui secondi da problemi a cavallo tra un minuto e un altro
 void apri(){//da sistemare
- if(chiuso){ //se chiuso è uguale a true, quindi se è chiuso apri
-  lcd.setCursor(4,1);
-  lcd.print("Apertura...");
-  secondiStop=now()+tempoApertChius;
- 
-    while(now()<secondiStop){
+   secondiStop=second()+tempoApertChius;
+if(secondiStop>60){
+  secondiStop=secondiStop-60;
+}
+    Serial.print("SecondiStop: ");
+   Serial.println(secondiStop);
+
+   Serial.print("Secondi: ");
+   Serial.println(second());
+    
+    while(second()<=secondiStop){
     avanti();
     }
-    tuttoSpento();
     secondiStop=0;
-    chiuso=false;
- }
 }
 void chiudi(){//da sistemare
-if(!chiuso){// se chiuso è a false quindi è aperto
-   lcd.setCursor(4,1);
-  lcd.print("Chiusura...");
-secondiStop=now()+tempoApertChius;
+  secondiStop=second()+tempoApertChius;
+if(secondiStop>60){
+  secondiStop=secondiStop-60;
+}
+Serial.print("SecondiStop: ");
+   Serial.println(secondiStop);
+
+   Serial.print("Secondi: ");
+   Serial.println(second());
     
-    while(now()<secondiStop){
+    while(second()<secondiStop){
     indietro();
     }
-    tuttoSpento();
      secondiStop=0;
-     chiuso=true;
-  }
 }
-
-void stampaData(){
- lcd.setCursor(0, 0); 
-   lcd.print(day()); 
-   lcd.print("/");
-    lcd.print(month()); 
-   lcd.print("/");
-    lcd.print(year()); 
-   lcd.print(" ");
-    lcd.print(hour()); 
-   lcd.print(":");
-    if(minute() < 10)
-        lcd.print('0');
-    lcd.print(minute());
-
-    lcd.setCursor(4,1);
- }
-
- //metodi lettore impronte digitali
-
- 
-uint8_t getFingerprintID() {
-  uint8_t p = finger.getImage();
-  switch (p) {
-    case FINGERPRINT_OK:
-      Serial.println("Image taken");
-      break;
-    case FINGERPRINT_NOFINGER:
-      Serial.println("No finger detected");
-      return p;
-    case FINGERPRINT_PACKETRECIEVEERR:
-      Serial.println("Communication error");
-      return p;
-    case FINGERPRINT_IMAGEFAIL:
-      Serial.println("Imaging error");
-      return p;
-    default:
-      Serial.println("Unknown error");
-      return p;
-  }
-
-  // OK success!
-
-  p = finger.image2Tz();
-  switch (p) {
-    case FINGERPRINT_OK:
-      Serial.println("Image converted");
-      break;
-    case FINGERPRINT_IMAGEMESS:
-      Serial.println("Image too messy");
-      return p;
-    case FINGERPRINT_PACKETRECIEVEERR:
-      Serial.println("Communication error");
-      return p;
-    case FINGERPRINT_FEATUREFAIL:
-      Serial.println("Could not find fingerprint features");
-      return p;
-    case FINGERPRINT_INVALIDIMAGE:
-      Serial.println("Could not find fingerprint features");
-      return p;
-    default:
-      Serial.println("Unknown error");
-      return p;
-  }
-  
-  // OK converted!
-  p = finger.fingerFastSearch();
-  if (p == FINGERPRINT_OK) {
-    Serial.println("Found a print match!");
-  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
-    Serial.println("Communication error");
-    return p;
-  } else if (p == FINGERPRINT_NOTFOUND) {
-    Serial.println("Did not find a match");
-    return p;
-  } else {
-    Serial.println("Unknown error");
-    return p;
-  }   
-  
-  // found a match!
-  Serial.print("Found ID #"); Serial.print(finger.fingerID); 
-  Serial.print(" with confidence of "); Serial.println(finger.confidence); 
-}
-
-int getFingerprintIDez() {
-  uint8_t p = finger.getImage();
-  if (p != FINGERPRINT_OK)  return -1;
-
-  p = finger.image2Tz();
-  if (p != FINGERPRINT_OK)  return -1;
-
-  p = finger.fingerFastSearch();
-  if (p != FINGERPRINT_OK)  return -1;
-  
-  // found a match!
-  Serial.print("Found ID #"); Serial.print(finger.fingerID); 
-  Serial.print(" with confidence of "); Serial.println(finger.confidence);
-   esitoLettura=true;
-   idLettura=finger.fingerID;
-}
-boolean leggiImpronta(){
-   getFingerprintIDez();
-  delay(50);
-  return esitoLettura;
-  }
-
-  
-//---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
+//---------
 
 
   
@@ -357,10 +218,6 @@ switch (stato){
   case 0:
   {
      //digitalClockDisplay();  
-     if(minutiCambioOra!=minute()){
-      stampaData();
-      minutiCambioOra=minute();
-      }
      key = keypad.getKey();
           if (key != NO_KEY){
                   if(key=='#'){
@@ -371,7 +228,6 @@ switch (stato){
                         Serial.println("Cambiato stato");
                         Serial.println(stato);  
                     }
-              
               lcd.print("*");
               lettura+=key;
               
@@ -386,10 +242,7 @@ switch (stato){
   {
     Serial.print("Stato dentro stato 1: ");
               Serial.println(stato);  
-  digitalClockDisplay();  
-  delay(1000);
-  digitalClockDisplay();
-
+  
     Serial.println("caso1");
     Serial.println("cambio lo stato a 0");
     delay(2000);
@@ -401,15 +254,10 @@ switch (stato){
 
   case 2:
   {
-    Serial.print("Stato dentro stato 2: "); Serial.println(stato);                            
-   Serial.println("caso lettura impronte digitali");
-    secondiStop=now()+10;
-    do{
-    esitoLettura = leggiImpronta();
-    }while(esitoLettura==false || now()<secondiStop);
-    if(esitoLettura){
-      apri();
-    }
+    Serial.print("Stato dentro stato 2: ");
+              Serial.println(stato);
+              
+   Serial.println("caso2");
    pulisciLCD();
    lettura="";
     stato=0;
@@ -457,6 +305,102 @@ switch (stato){
   
   
   }
+
+/*if(stato==0){
+   key = keypad.getKey();
+          if (key != NO_KEY){
+                  if(key=='#'){
+                        Serial.print("Lettura");
+                        Serial.println(lettura);
+                        gestisciInsert(lettura);
+                        //stato=gestisciInsert(lettura);
+                        Serial.println("Cambiato stato");
+                        Serial.println(stato);  
+                    }
+              lcd.print("*");
+              lettura+=key;
+              
+              //codice di controllo
+              Serial.print("key: ");
+              Serial.println(key);
+              Serial.print("Stato: ");
+              Serial.println(stato);     
+          }
+} else if(stato==1){
+              Serial.print("Stato dentro stato 1: ");
+              Serial.println(stato);  
+  
+    Serial.println("caso1");
+    Serial.println("cambio lo stato a 0");
+    delay(2000);
+    pulisciLCD();
+    lettura="";
+    stato=0;
+} else if(stato==2){
+  Serial.print("Stato dentro stato 2: ");
+              Serial.println(stato);
+              
+   Serial.println("caso2");
+   pulisciLCD();
+   lettura="";
+    stato=0;
+} else{
+  Serial.println("errore");
+}*/
+
+ 
+
+
+
+/*
+switch(stato){
+  case 0:
+    {  
+          key = keypad.getKey();
+          if (key != NO_KEY){
+          if(key=='#'){
+            stato=gestisciInsert(lettura);
+            Serial.print("Cambiato stato");
+            }
+          lcd.print("*");
+          lettura+=key;
+          
+          //codice di controllo
+          Serial.print("key: ");
+          Serial.println(key);
+          Serial.print("Stato: ");
+          Serial.println(stato);     
+          }
+    }
+    break;
+ 
+  case 5:
+    {
+     Serial.println("Inizio case 1");
+   lcd.setCursor(4, 1); 
+    lcd.print("            ");
+    delay(2000);
+     lcd.setCursor(4, 1); 
+    lcd.print(lettura);
+     Serial.println("Fine case 1");
+    }
+   break;
+  case 3:
+    {
+    Serial.println("dentro 3");
+    delay(1000);
+    stato=0;
+    //if (Serial1.available() > 0) {//attende fino a che seriale non riceve qualcosa
+    //char msg=Serial1.read();//mette la ricezione in un char
+    //Serial.print(msg);//la tsampa
+  //}
+    }
+  break;
+
+  default: Serial.println("ERRORE");
+    break;
+}*/
+
  
 }
 
