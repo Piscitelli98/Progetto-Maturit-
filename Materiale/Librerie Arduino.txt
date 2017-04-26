@@ -35,3 +35,5 @@
 	Link: https://github.com/jwhiddon/EDB
 - Sensore impronte
 	Link: http://kookye.com/2016/07/24/use-arduino-drive-fingerprint-sensor/ --> Spigazione e libreria
+- Fotocamera
+	Link: http://www.instructables.com/id/OV7670-Arduino-Camera-Sensor-Module-Framecapture-T/ --> montaggio e utilizzo
