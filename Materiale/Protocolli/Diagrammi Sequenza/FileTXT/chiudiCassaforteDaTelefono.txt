@@ -10,6 +10,6 @@ cassaforte->appAndroid: connesso
 
 note right of utente: utente preme il tasto chiudi cassaforte \ndopo aver effettuato la login
 
-appAndroid->cassaforte: close_request
-cassaforte->appAndroid: close_response;codiceErr
+appAndroid->cassaforte: close_request;%
+cassaforte->appAndroid: close_response;codiceErr;%
 note right of appAndroid: codiceErr è un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore.\nAd esempio se la cassaforte è gia chiusa
