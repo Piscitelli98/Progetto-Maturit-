@@ -28,7 +28,7 @@ boolean chiuso=true;
 int m0=50, m1=51, m2=52, m3=53;
 long secondiStop=0;
 int minutiCambioOra=0;
-int tempoApertChius=10;
+int tempoApertChius=5;
 
 
 const byte ROWS = 4; //four rows
@@ -119,7 +119,8 @@ void digitalClockDisplay(void)
 
   //leggo il primo carattere per sapere se è una password di accesso o un comando
   String tp=lettura.substring(0,1);  
-  
+  Serial.print("Lettura prima di entrare nel controllo: ");
+  Serial.println(lettura);
   if(tp=="*"){//se il primo carattere è un *, allora è un comando
    /* Serial.println("----------dentro if tp");
     Serial.print("----------LEttura lettura: ");
@@ -133,15 +134,28 @@ void digitalClockDisplay(void)
     else if(lettura=="*5"){ stato=5; Serial.println("----------dentro if tp -----------stato 5");}
     else if(lettura=="*6"){ stato=6; Serial.println("----------dentro if tp -----------stato 6");}
     else if(lettura=="*7"){ stato=7; Serial.println("----------dentro if tp -----------stato 7");}
+    else if(lettura=="*1234567890"){ stato=1234567890; Serial.println("----------dentro if tp -----------stato 1234567890");}
     else { stato=-1; Serial.println("----------dentro if tp -----------stato -1 ERRORE");}
   }//fine if controllo
   else{//se è una password controllo su database
+    Serial.print("Lettura prima di entrare nel controllo DELLA PASSWORD : ");
+  Serial.println(lettura);
     Serial.println("controllo psw");
     if(pswTest==lettura){
         stato=2;
         Serial.println("--******--dentro if controllo PASSWORD --******-- stato 2");
+      }    
+     else if(lettura==""){
+      Serial.println("Chiudo Cassaforte");
+      chiudi();
       }
+      else{
+        stato=-1;
+        }
+
     lettura="";
+   
+    pulisciLCD();
    // valore=1;
   }
   
@@ -220,7 +234,7 @@ void tuttoSpento(){
     digitalWrite(m3, LOW);
   }
 //problema riscontrato: calcolo basato sui secondi da problemi a cavallo tra un minuto e un altro
-void apri(){//da sistemare
+void apri(){
  if(chiuso){ //se chiuso è uguale a true, quindi se è chiuso apri
   lcd.setCursor(4,1);
   lcd.print("Apertura...");
@@ -234,7 +248,7 @@ void apri(){//da sistemare
     chiuso=false;
  }
 }
-void chiudi(){//da sistemare
+void chiudi(){
 if(!chiuso){// se chiuso è a false quindi è aperto
    lcd.setCursor(4,1);
   lcd.print("Chiusura...");
@@ -246,6 +260,7 @@ secondiStop=now()+tempoApertChius;
     tuttoSpento();
      secondiStop=0;
      chiuso=true;
+     esitoLettura=false;
   }
 }
 
@@ -350,20 +365,10 @@ int getFingerprintIDez() {
    idLettura=finger.fingerID;
 }
 boolean leggiImpronta(){
-  //codice per la visualizzazione su lcd
-   lcd.setCursor(0, 1); 
-   lcd.print("Richiesta Impronta...");
-   lcd.setCursor(4, 1); 
-
-     //metodo per la lettura del sensore di impronte digitali
+      //metodo per la lettura del sensore di impronte digitali
    getFingerprintIDez();
   delay(50);
-  
-   //codice per la visualizzazione su lcd
-  lcd.setCursor(0, 1); 
-   lcd.print("Ins:");
-   lcd.setCursor(4, 1);
-   pulisciLCD();
+
   return esitoLettura;
   }
 
@@ -387,12 +392,13 @@ switch (stato){
      key = keypad.getKey();
           if (key != NO_KEY){
                   if(key=='#'){
-                        Serial.print("Lettura");
+                        Serial.print("Lettura: ");
                         Serial.println(lettura);
                         gestisciInsert(lettura);
                         //stato=gestisciInsert(lettura);
                         Serial.println("Cambiato stato");
                         Serial.println(stato);  
+                       
                     }
               
               lcd.print("*");
@@ -427,12 +433,29 @@ switch (stato){
     Serial.print("Stato dentro stato 2: "); Serial.println(stato);                            
    Serial.println("caso lettura impronte digitali");
     secondiStop=now()+10;
+    
+     //codice per la visualizzazione su lcd
+   lcd.setCursor(0, 1); 
+   lcd.print("ins. Impronta...");
+   lcd.setCursor(4, 1); 
+   
     do{
     esitoLettura = leggiImpronta();
     }while(esitoLettura==false || now()<secondiStop);
+      
+   //codice per la visualizzazione su lcd
+  lcd.setCursor(0, 1); 
+   lcd.print("Ins:");
+   lcd.setCursor(4, 1);
+   pulisciLCD();
+   
     if(esitoLettura){
       apri();
     }
+    else
+    {
+      Serial.println("Errore Impronta");
+      }
    pulisciLCD();
    lettura="";
     stato=0;
@@ -457,11 +480,41 @@ switch (stato){
     }break;
 
   case 5:
-  {}break;
+  {
+    pulisciLCD();
+   lettura="";
+    stato=0;
+    }break;
 
   case 6:
-  {}break;
+  {
+    pulisciLCD();
+   lettura="";
+    stato=0;
+    }break;
 
+ case 7:
+  {
+    pulisciLCD();
+   lettura="";
+    stato=0;
+    }break;
+case 1234567890:
+  {
+    Serial.println("Stampo tutte le variabili...");
+    delay(300);
+    Serial.print("pswTest: "); Serial.println(pswTest);
+    Serial.print("EsitoLettura: "); Serial.println(esitoLettura);
+    Serial.print("idLettura: "); Serial.println(idLettura);
+    Serial.print("stato: "); Serial.println(stato);
+    Serial.print("lettura: "); Serial.println(lettura);
+    Serial.print("chiuso: "); Serial.println(chiuso);
+    Serial.print("tempo Apertura e chiusura: "); Serial.println(tempoApertChius);
+    
+    pulisciLCD();
+   lettura="";
+    stato=0;
+    }break;
   case -1:
   {
     Serial.println("errore, codice menue inesistente");
