@@ -1,1 +1,85 @@
 
+#include <SPI.h>
+#include <SD.h>
+File myFile;
+int id = 1;
+String username ="malgax";
+String password="yolo";
+
+
+void setup() {
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+  
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+}
+  void scrittura (int id,String username,String password){
+  
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open("utenti.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to utenti.txt...");
+    myFile.print(id);
+    myFile.print(";");
+    myFile.print(username);
+    myFile.print(";");
+    myFile.print(password);
+    myFile.println(";");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+}
+void accessi (int id //si deve aggiungere la data){
+  
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open("utenti.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to utenti.txt...");
+    myFile.print(id);
+  //qua va aggiunta la data
+    myFile.println(";");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+}
+void lettura_sd(){
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+    Serial.println("utenti.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+}
+
+void loop() {
+ 
+}
