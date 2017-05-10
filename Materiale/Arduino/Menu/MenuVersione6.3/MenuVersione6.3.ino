@@ -147,7 +147,8 @@ void digitalClockDisplay(void)
       }    
      else if(lettura==""){
       Serial.println("Chiudo Cassaforte");
-      chiudi();
+      //chiudi();
+      stato=4;
       lettura="";
       pulisciLCD();
       }
