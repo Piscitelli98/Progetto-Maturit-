@@ -6,7 +6,6 @@ int id = 1;
 String username ="malgax";
 String password="yolo";
 
-
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -20,7 +19,8 @@ void setup() {
   }
   Serial.println("initialization done.");
 }
-  void scrittura (int id,String username,String password){
+
+void scrittura (int id,String username,String password){
   
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
@@ -43,15 +43,16 @@ void setup() {
     Serial.println("error opening test.txt");
   }
 }
+
 void accessi (int id //si deve aggiungere la data){
   
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
-  myFile = SD.open("utenti.txt", FILE_WRITE);
+  myFile = SD.open("accessi.txt", FILE_WRITE);
 
   // if the file opened okay, write to it:
   if (myFile) {
-    Serial.print("Writing to utenti.txt...");
+    Serial.print("Writing to accessi.txt...");
     myFile.print(id);
   //qua va aggiunta la data
     myFile.println(";");
@@ -60,10 +61,11 @@ void accessi (int id //si deve aggiungere la data){
     Serial.println("done.");
   } else {
     // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    Serial.println("error opening accessi.txt");
   }
 }
-void lettura_sd(){
+
+void lettura_sd_utenti(){
   myFile = SD.open("utenti.txt");
   if (myFile) {
     Serial.println("utenti.txt:");
@@ -76,10 +78,24 @@ void lettura_sd(){
     myFile.close();
   } else {
     // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    Serial.println("error opening utenti.txt");
   }
 }
 
-void loop() {
- 
+void lettura_sd_accessi(){
+  myFile = SD.open("accessi.txt");
+  if (myFile) {
+    Serial.println("accessi.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening accessi.txt");
+  }
 }
+
