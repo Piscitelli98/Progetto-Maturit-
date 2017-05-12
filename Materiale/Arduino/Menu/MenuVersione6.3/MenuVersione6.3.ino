@@ -48,7 +48,8 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 void setup(){
   Serial.begin(9600);
-  Serial1.begin (9600);//bluetooth
+  Serial1.begin (9600);//clock
+  Serial3.begin(9600);
    lcd.begin(16, 2);  
    lcd.setCursor(0, 0); 
    lcd.print("Ins. codice...");
@@ -379,17 +380,17 @@ boolean leggiImpronta(){
 
 void msgBT(){
   
-   if (Serial1.available() > 0) {//attende fino a che seriale non riceve qualcosa
+   if (Serial3.available() > 0) {//attende fino a che seriale non riceve qualcosa
  //gestiscoIlmessaggio
     
-    message+=char(Serial1.read());
+    message+=char(Serial3.read());
    }
    Serial.print("messaggio: ");
    Serial.println(message);
    if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
    else{
-     Serial.println("cancello messaggio");
-    message="";
+     //Serial.println("cancello messaggio");
+    //message="";
     }
 }
   
@@ -479,6 +480,8 @@ switch (stato){
       }
    pulisciLCD();
    lettura="";
+   message="";
+   
     stato=0;
     }break;
 
