@@ -14,6 +14,8 @@ int getFingerprintIDez();
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
 boolean esitoLettura=false;
 int idLettura=-1;
+String message="";
+String logIn="login_request;BeppeL;c7cc6a1fd6d6b5f4817025cb532b52fa;%";
 
 
 //lcd, configurazione e collegamenti
@@ -46,7 +48,7 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 void setup(){
   Serial.begin(9600);
-  Serial1.begin (9600);
+  Serial1.begin (9600);//bluetooth
    lcd.begin(16, 2);  
    lcd.setCursor(0, 0); 
    lcd.print("Ins. codice...");
@@ -376,9 +378,19 @@ boolean leggiImpronta(){
   }
 
 void msgBT(){
+  
    if (Serial1.available() > 0) {//attende fino a che seriale non riceve qualcosa
  //gestiscoIlmessaggio
-  }  
+    
+    message+=char(Serial1.read());
+   }
+   Serial.print("messaggio: ");
+   Serial.println(message);
+   if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
+   else{
+     Serial.println("cancello messaggio");
+    message="";
+    }
 }
   
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
