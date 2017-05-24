@@ -16,6 +16,7 @@ boolean esitoLettura=false;
 int idLettura=-1;
 String message="";
 String logIn="login_request;BeppeL;c7cc6a1fd6d6b5f4817025cb532b52fa;%";
+boolean fineMSGPERC=false;
 
 
 //lcd, configurazione e collegamenti
@@ -379,19 +380,55 @@ boolean leggiImpronta(){
   }
 
 void msgBT(){
-  
-   if (Serial3.available() > 0) {//attende fino a che seriale non riceve qualcosa
+   while(Serial3.available() > 0) {//attende fino a che seriale non riceve qualcosa
  //gestiscoIlmessaggio
-    
-    message+=char(Serial3.read());
+    char lettoCh=Serial3.read();
+    message+=lettoCh;
+    if(lettoCh=='%'){
+      fineMSGPERC=true;
+      }
    }
-   Serial.print("messaggio: ");
-   Serial.println(message);
-   if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
+   if(message!=""){
+    Serial.print("messaggio: ");
+  Serial.println(message);
+    }
+  
+if(fineMSGPERC){
+  //faccio lo substring della prima parte per capire che tipo di messaggio sto ricevendo
+   int primoPuntoVirgola = message.indexOf(';');
+   String tipoMSG = message.substring(0, primoPuntoVirgola+1);
+ Serial.print("messaggio tipo: ");
+  Serial.println(tipoMSG);
+   if(tipoMSG=="login_request;"){
+     Serial.println("Dentro loginrequest");
+     int trovPerc = message.indexOf('%');
+    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
+     Serial.print("messaggio per user: ");
+  Serial.println(message);
+    int secondoPuntoVirgola = message.indexOf(';');
+    String username=message.substring(0, secondoPuntoVirgola);
+    trovPerc = message.indexOf('%');
+    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+    int terzoPuntoVirgola = message.indexOf(';');
+    Serial.print("messaggio per pass: ");
+  Serial.println(message);
+    String password=message.substring(0, terzoPuntoVirgola);
+    Serial.print("Username: ");
+    Serial.println(username);
+     Serial.print("Password: ");
+    Serial.println(password);
+    fineMSGPERC=false;
+    message="";
+    stato=2;
+  }
+   
+ 
+    }
+  /* if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
    else{
      //Serial.println("cancello messaggio");
     //message="";
-    }
+    }*/
 }
   
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
