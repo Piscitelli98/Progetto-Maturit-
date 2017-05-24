@@ -39,3 +39,4 @@
 	Link: http://www.instructables.com/id/OV7670-Arduino-Camera-Sensor-Module-Framecapture-T/ --> montaggio e utilizzo
 - Memory SD
 	Link: http://www.dallaf.it/simo/wp/2015/06/20/arduino-sd-card-module/  --> montaggio e librerie da usare
+	Link: https://learn.adafruit.com/adafruit-micro-sd-breakout-board-card-tutorial/wiring --> dettagliato
