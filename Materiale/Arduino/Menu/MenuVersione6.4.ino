@@ -265,7 +265,7 @@ void apri(){
   secondiStop=now()+tempoApertChius;
  
     while(now()<secondiStop){
-    indietro();
+    avanti();
     }
     tuttoSpento();
     secondiStop=0;
@@ -279,7 +279,7 @@ if(!chiuso){// se chiuso è a false quindi è aperto
 secondiStop=now()+tempoApertChius;
     
     while(now()<secondiStop){
-    avanti();
+    indietro();
     }
     tuttoSpento();
      secondiStop=0;
@@ -416,7 +416,6 @@ if(fineMSGPERC){
    String tipoMSG = message.substring(0, primoPuntoVirgola+1);
  Serial.print("messaggio tipo: ");
   Serial.println(tipoMSG);
-
    if(tipoMSG=="login_request;"){
      Serial.println("Dentro loginrequest");
      int trovPerc = message.indexOf('%');
@@ -435,74 +434,10 @@ if(fineMSGPERC){
     Serial.println(username);
      Serial.print("Password: ");
     Serial.println(password);
-
-  //!!!^^^!!! DA IMPLEMENTARE
-/*String messRitorno=getCredenzialiLogin(username, password);
-      String msgResponse="login_response;"+messRitorno+";%";
-      Serial3.write(msgResponse);
-  */
-    
     fineMSGPERC=false;
     message="";
     stato=2;
   }
-
-  else if(tipoMSG=="get_datiLog_request;"){
-    //prendo i valori del messaggio
-    Serial.println("Dentro getDatiLog");
-     int trovPerc = message.indexOf('%');
-    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
-     Serial.print("messaggio per user: ");
-  Serial.println(message);
-    int secondoPuntoVirgola = message.indexOf(';');
-    String username=message.substring(0, secondoPuntoVirgola);
-    trovPerc = message.indexOf('%');
-    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
-    int terzoPuntoVirgola = message.indexOf(';');
-    Serial.print("messaggio per pass: ");
-  Serial.println(message);
-    String data=message.substring(0, terzoPuntoVirgola);
-    Serial.print("Username: ");
-    Serial.println(username);
-     Serial.print("data: ");
-    Serial.println(data);
-    
-    //richiamo il metodo per trovare nella memoria i dati di log, prima però devo verificare le credenziali dell'username
-    //quindi gli passerò username e la data dei log che devo visualizzare
-                //!!!^^^!!!! METODO DA IMPLEMENTARE
-    /*String messRitorno=getDatiLog(username, data);
-        if(messRitorno.length()<3){
-          String msgResponse="get_datiLog_response;"+messRitorno+";%";
-          Serial3.write(msgResponse);
-          }
-         else{
-          String msgResponse="get_datiLog_response;0;%";
-          }
-    Serial3.write(messRitorno);
-    Serial3.write("get_datiLog_end;%");*/
-    fineMSGPERC=false;
-    message="";
-    
-    }
-   else if(tipoMSG=="close_request;"){
-    Serial.println("Dentro closerequest");
-    stato=4;
-    if(chiuso){
-      Serial3.write("close_response;-1;%");
-      }
-     else if(!chiuso){
-      Serial3.write("close_response;0;%");
-      }
-    
-     fineMSGPERC=false;
-    message="";
-    }
-   else if(tipoMSG==";"){
-    
-    }
-     else if(tipoMSG==";"){
-    
-    }
    
  
     }
