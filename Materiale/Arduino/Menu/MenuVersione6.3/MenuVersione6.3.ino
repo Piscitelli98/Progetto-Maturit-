@@ -3,10 +3,16 @@
 #include <DS3232RTC.h>   
 #include <TimeLib.h>         
 #include <Wire.h>  
+#include <SPI.h>
+#include <SD.h>
 #include <Adafruit_Fingerprint.h>
 
 //test
 String pswTest="1998";
+
+//estensione memoria SD
+File myFile;
+int id = 1;
 
 //imprinte digitali
 //collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
@@ -28,7 +34,7 @@ String lettura="";
 boolean chiuso=true;
 
 //pin motorini serratura
-int m0=50, m1=51, m2=52, m3=53;
+int m0=32, m1=33, m2=34, m3=35;//50,51,52,53
 long secondiStop=0;
 int minutiCambioOra=0;
 int tempoApertChius=5;
@@ -86,7 +92,18 @@ void setup(){
     Serial.println("Did not find fingerprint sensor :(");
     //while (1);
   }
-  Serial.println("Waiting for valid finger...");
+//memoria SD
+
+Serial.print("Inizializzazione Card: ");
+  if (!SD.begin(53)) //il Pin 53 è collegato a CS
+  {
+    Serial.println("FALLITA!");
+  }
+  else{
+    Serial.println("ESEGUITO!");
+    }
+  
+
 
         stampaData(); 
         minutiCambioOra=minute();
@@ -248,7 +265,7 @@ void apri(){
   secondiStop=now()+tempoApertChius;
  
     while(now()<secondiStop){
-    avanti();
+    indietro();
     }
     tuttoSpento();
     secondiStop=0;
@@ -262,7 +279,7 @@ if(!chiuso){// se chiuso è a false quindi è aperto
 secondiStop=now()+tempoApertChius;
     
     while(now()<secondiStop){
-    indietro();
+    avanti();
     }
     tuttoSpento();
      secondiStop=0;
@@ -430,7 +447,22 @@ if(fineMSGPERC){
     //message="";
     }*/
 }
-  
+ void lettura_sd_utenti(){
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+    Serial.println("utenti.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening utenti.txt");
+  }
+} 
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
 
 
@@ -557,6 +589,7 @@ switch (stato){
  case 7:
   {
     pulisciLCD();
+    lettura_sd_utenti();
    lettura="";
     stato=0;
     }break;
