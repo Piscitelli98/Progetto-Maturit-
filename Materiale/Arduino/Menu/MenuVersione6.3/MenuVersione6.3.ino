@@ -3,10 +3,16 @@
 #include <DS3232RTC.h>   
 #include <TimeLib.h>         
 #include <Wire.h>  
+#include <SPI.h>
+#include <SD.h>
 #include <Adafruit_Fingerprint.h>
 
 //test
 String pswTest="1998";
+
+//estensione memoria SD
+File myFile;
+int id = 1;
 
 //imprinte digitali
 //collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
@@ -14,6 +20,9 @@ int getFingerprintIDez();
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
 boolean esitoLettura=false;
 int idLettura=-1;
+String message="";
+String logIn="login_request;BeppeL;c7cc6a1fd6d6b5f4817025cb532b52fa;%";
+boolean fineMSGPERC=false;
 
 
 //lcd, configurazione e collegamenti
@@ -25,7 +34,7 @@ String lettura="";
 boolean chiuso=true;
 
 //pin motorini serratura
-int m0=50, m1=51, m2=52, m3=53;
+int m0=32, m1=33, m2=34, m3=35;//50,51,52,53
 long secondiStop=0;
 int minutiCambioOra=0;
 int tempoApertChius=5;
@@ -46,7 +55,8 @@ Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 void setup(){
   Serial.begin(9600);
-  Serial1.begin (9600);
+  Serial1.begin (9600);//clock
+  Serial3.begin(9600);
    lcd.begin(16, 2);  
    lcd.setCursor(0, 0); 
    lcd.print("Ins. codice...");
@@ -82,7 +92,18 @@ void setup(){
     Serial.println("Did not find fingerprint sensor :(");
     //while (1);
   }
-  Serial.println("Waiting for valid finger...");
+//memoria SD
+
+Serial.print("Inizializzazione Card: ");
+  if (!SD.begin(53)) //il Pin 53 è collegato a CS
+  {
+    Serial.println("FALLITA!");
+  }
+  else{
+    Serial.println("ESEGUITO!");
+    }
+  
+
 
         stampaData(); 
         minutiCambioOra=minute();
@@ -147,7 +168,8 @@ void digitalClockDisplay(void)
       }    
      else if(lettura==""){
       Serial.println("Chiudo Cassaforte");
-      chiudi();
+      //chiudi();
+      stato=4;
       lettura="";
       pulisciLCD();
       }
@@ -243,7 +265,7 @@ void apri(){
   secondiStop=now()+tempoApertChius;
  
     while(now()<secondiStop){
-    avanti();
+    indietro();
     }
     tuttoSpento();
     secondiStop=0;
@@ -257,7 +279,7 @@ if(!chiuso){// se chiuso è a false quindi è aperto
 secondiStop=now()+tempoApertChius;
     
     while(now()<secondiStop){
-    indietro();
+    avanti();
     }
     tuttoSpento();
      secondiStop=0;
@@ -375,11 +397,136 @@ boolean leggiImpronta(){
   }
 
 void msgBT(){
-   if (Serial1.available() > 0) {//attende fino a che seriale non riceve qualcosa
+   while(Serial3.available() > 0) {//attende fino a che seriale non riceve qualcosa
  //gestiscoIlmessaggio
-  }  
-}
+    char lettoCh=Serial3.read();
+    message+=lettoCh;
+    if(lettoCh=='%'){
+      fineMSGPERC=true;
+      }
+   }
+   if(message!=""){
+    Serial.print("messaggio: ");
+  Serial.println(message);
+    }
   
+if(fineMSGPERC){
+  //faccio lo substring della prima parte per capire che tipo di messaggio sto ricevendo
+   int primoPuntoVirgola = message.indexOf(';');
+   String tipoMSG = message.substring(0, primoPuntoVirgola+1);
+ Serial.print("messaggio tipo: ");
+  Serial.println(tipoMSG);
+
+  
+   if(tipoMSG=="login_request;"){
+     Serial.println("Dentro loginrequest");
+     int trovPerc = message.indexOf('%');
+    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
+     Serial.print("messaggio per user: ");
+  Serial.println(message);
+    int secondoPuntoVirgola = message.indexOf(';');
+    String username=message.substring(0, secondoPuntoVirgola);
+    trovPerc = message.indexOf('%');
+    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+    int terzoPuntoVirgola = message.indexOf(';');
+    Serial.print("messaggio per pass: ");
+  Serial.println(message);
+    String password=message.substring(0, terzoPuntoVirgola);
+    Serial.print("Username: ");
+    Serial.println(username);
+     Serial.print("Password: ");
+    Serial.println(password);
+  //!!!^^^!!! DA IMPLEMENTARE
+/*String messRitorno=getCredenzialiLogin(username, password);
+      String msgResponse="login_response;"+messRitorno+";%";
+      Serial3.write(msgResponse);
+  */
+    
+    fineMSGPERC=false;
+    message="";
+    stato=2;
+  }
+  else if(tipoMSG=="get_datiLog_request;"){
+    //prendo i valori del messaggio
+    Serial.println("Dentro getDatiLog");
+     int trovPerc = message.indexOf('%');
+    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
+     Serial.print("messaggio per user: ");
+  Serial.println(message);
+    int secondoPuntoVirgola = message.indexOf(';');
+    String username=message.substring(0, secondoPuntoVirgola);
+    trovPerc = message.indexOf('%');
+    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+    int terzoPuntoVirgola = message.indexOf(';');
+    Serial.print("messaggio per pass: ");
+  Serial.println(message);
+    String data=message.substring(0, terzoPuntoVirgola);
+    Serial.print("Username: ");
+    Serial.println(username);
+     Serial.print("data: ");
+    Serial.println(data);
+    
+    //richiamo il metodo per trovare nella memoria i dati di log, prima però devo verificare le credenziali dell'username
+    //quindi gli passerò username e la data dei log che devo visualizzare
+                //!!!^^^!!!! METODO DA IMPLEMENTARE
+    /*String messRitorno=getDatiLog(username, data);
+        if(messRitorno.length()<3){
+          String msgResponse="get_datiLog_response;"+messRitorno+";%";
+          Serial3.write(msgResponse);
+          }
+         else{
+          String msgResponse="get_datiLog_response;0;%";
+          }
+    Serial3.write(messRitorno);
+    Serial3.write("get_datiLog_end;%");*/
+    fineMSGPERC=false;
+    message="";
+    
+    }
+   else if(tipoMSG=="close_request;"){
+    Serial.println("Dentro closerequest");
+    stato=4;
+    if(chiuso){
+      Serial3.write("close_response;-1;%");
+      }
+     else if(!chiuso){
+      Serial3.write("close_response;0;%");
+      }
+    
+     fineMSGPERC=false;
+    message="";
+    }
+   else if(tipoMSG==";"){
+    
+    }
+     else if(tipoMSG==";"){
+    
+    }
+   
+ 
+    }
+  /* if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
+   else{
+     //Serial.println("cancello messaggio");
+    //message="";
+    }*/
+}
+ void lettura_sd_utenti(){
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+    Serial.println("utenti.txt:");
+
+    // read from the file until there's nothing else in it:
+    while (myFile.available()) {
+      Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening utenti.txt");
+  }
+} 
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
 
 
@@ -466,6 +613,8 @@ switch (stato){
       }
    pulisciLCD();
    lettura="";
+   message="";
+   
     stato=0;
     }break;
 
@@ -504,6 +653,7 @@ switch (stato){
  case 7:
   {
     pulisciLCD();
+    lettura_sd_utenti();
    lettura="";
     stato=0;
     }break;
