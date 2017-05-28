@@ -1,0 +1,3 @@
+. Metodo che cerca e trova le informazioni ... di un utente dato ...
+. Metodo che registra giorno, mese, anno, ora, minuti, secondi relativi all'apertura della cassaforte con associato l'id dell'account relativo al codice utilizzato. 
+. Metodo che mi permetta di cercare e verificare i codici di accesso per aprire la cassaforte. 
