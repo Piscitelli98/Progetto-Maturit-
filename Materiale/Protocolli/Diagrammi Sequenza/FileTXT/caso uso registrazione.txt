@@ -1,0 +1,14 @@
+title cassaforte 2.0 Diagramma di sequenza caso registrazione
+
+participant utente
+participant appAndroid
+participant cassaforte
+
+note right of utente: utente preme il tasto registrati
+appAndroid->cassaforte: connessione
+cassaforte->appAndroid: connesso
+appAndroid->cassaforte: set_registra;pin;username;passwordMD5;%
+note right of appAndroid: arduino richiede impronta per essere registrata
+cassaforte->appAndroid: registra_response;codErr;%
+note right of appAndroid: codiceErr è un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore\n -1 = pin errato\n -2 = username gia esistente\n -3 = impronta inserita in modo errato \n -4 = errore salvataggio account\n -5 = altro Errore indefinito
+appAndroid->cassaforte: disconnessione
