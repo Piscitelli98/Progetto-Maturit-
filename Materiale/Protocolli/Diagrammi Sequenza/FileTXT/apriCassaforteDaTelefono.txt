@@ -13,4 +13,4 @@ note right of utente: utente preme il tasto apri cassaforte \ndopo aver effettua
 appAndroid->cassaforte: open_request;username;pin;%
 note right of cassaforte: username dell'utente che apre la cassaforte \npin per aprire la cassaforte
 cassaforte->appAndroid: open_response;codiceErr;%
-note right of appAndroid: codiceErr è un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore.
+note right of appAndroid: codiceErr Ã¨ un intero, ritorna 0 se non ha problemi \nRitorna altri valori per altri tipi di errore.\n -1 = username errato\n -2 = pin errato\n -3 = cassaforte gia aperta
