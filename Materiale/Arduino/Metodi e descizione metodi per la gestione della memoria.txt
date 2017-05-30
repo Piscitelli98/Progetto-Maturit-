@@ -1,3 +1,35 @@
-. Metodo che cerca e trova le informazioni ... di un utente dato ...
-. Metodo che registra giorno, mese, anno, ora, minuti, secondi relativi all'apertura della cassaforte con associato l'id dell'account relativo al codice utilizzato. 
-. Metodo che mi permetta di cercare e verificare i codici di accesso per aprire la cassaforte. 
+N.B. L'ID si deve considerare come chiave primaria, l'username come chiave candidata
+     L'ID sarà preso tramite insermento dell'impronta, che generea unùùin automatico l'id associato all'impronta.
+     Si devono fare quindi i controlli per verificare che l'id non sia gia presente e che l'username non sia gia presente
+
+1. Metodo che cerca e trova l'ID dell'utente di un utente dato Username
+    Metodo: finfIdUser(String Username){
+    int numeroID=-1;
+    ...
+    //restituisce un codice positivo corrispondente all'id se trova l'utente, 
+    //un numero negativo se non o trova(preferibilmente -1 se non trova l'username)
+    return numeroID;
+    }
+2. Metodo per la log che registra giorno, mese, anno, ora, minuti, secondi relativi all'apertura della cassaforte con associato l'id dell'account relativo al codice dell'imponta utilizzato. 
+   Metodo: setLog(int giorno, int mese, int anno, int ora, int minuti, int secondi, int idUtenteImpronta){
+    int codErr=0 //ritorna 0 se non ci sono errori, numeri negativi per altri errori(usare -1)
+    //idUtenteImpronta lo prende dal sensore di impronte
+    return codErr;
+   }
+3. Metodo che mi permetta di cercare e verificare username e password di accesso.
+    Metodo: findCredenzialiUser(String username, String password){
+              ...
+              return true/false;
+            }
+4.Verificare l'esistenza di un utente avendo l'username
+  Metodo: verificaUtente(String username){
+            ...
+            return true/false;
+            }
+5. Registrare username e password e impronta
+  Metodo:  registraUserPass(String username, String password){
+           int msgErr=0;//0 per indicare che è andato tutto a buon fine, -1 per errori eventuali
+           ...
+           return msgErr;
+           }
+   
