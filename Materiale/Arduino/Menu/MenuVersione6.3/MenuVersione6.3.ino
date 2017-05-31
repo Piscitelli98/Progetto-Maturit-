@@ -14,8 +14,9 @@ String pswTest="1998";
 File myFile;
 int id = 1;
 
-//imprinte digitali
+//impronte digitali
 //collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
+int ultimoIdRilevato=-1;
 int getFingerprintIDez();
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
 boolean esitoLettura=false;
@@ -368,6 +369,7 @@ uint8_t getFingerprintID() {
   }   
   
   // found a match!
+  ultimoIdRilevato=finger.fingerID;
   Serial.print("Found ID #"); Serial.print(finger.fingerID); 
   Serial.print(" with confidence of "); Serial.println(finger.confidence); 
 }
@@ -383,6 +385,7 @@ int getFingerprintIDez() {
   if (p != FINGERPRINT_OK)  return -1;
   
   // found a match!
+  ultimoIdRilevato=finger.fingerID;
   Serial.print("Found ID #"); Serial.print(finger.fingerID); 
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
    esitoLettura=true;
@@ -795,6 +798,8 @@ switch (stato){
     {
       Serial.println("Errore Impronta");
       }
+   Serial.print("Impronta appartenente a ID: ");
+   Serial.println(ultimoIdRilevato);
    pulisciLCD();
    lettura="";
    message="";
