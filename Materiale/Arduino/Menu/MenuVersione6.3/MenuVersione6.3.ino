@@ -525,8 +525,12 @@ if(fineMSGPERC){
     Serial.println(pin);
 
     if(username=="BeppeL" && pin==pswTest){
+      Serial3.write("TTRUEE");
       stato=2;
       }
+      else{
+        Serial3.write("FFALSE");
+        }
     
     }
      else if(tipoMSG==";"){
