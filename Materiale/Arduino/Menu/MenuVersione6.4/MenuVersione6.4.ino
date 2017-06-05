@@ -13,6 +13,9 @@ String pswTest="1998";
 //estensione memoria SD
 File myFile;
 int id = 1;
+String userDaReg="";
+String passDaReg="";
+
 
 //impronte digitali
 //collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
@@ -308,6 +311,61 @@ void stampaData(){
 
  //metodi lettore impronte digitali
 
+ void letturaImpronte(){
+    secondiStop=now()+10;
+    
+     //codice per la visualizzazione su lcd
+   lcd.setCursor(0, 1); 
+   lcd.print("ins. Impronta...");
+   lcd.setCursor(4, 1); 
+   
+    do{
+    esitoLettura = leggiImpronta();
+    }while(esitoLettura==false && now()<secondiStop);
+      
+   //codice per la visualizzazione su lcd
+  lcd.setCursor(0, 1); 
+   lcd.print("Ins:");
+   lcd.setCursor(4, 1);
+   pulisciLCD();
+  }
+void letturaImpronteApertura(){
+  
+  Serial.print("Stato dentro stato 2: "); Serial.println(stato);                            
+   Serial.println("caso lettura impronte digitali");
+    secondiStop=now()+10;
+    
+     //codice per la visualizzazione su lcd
+   lcd.setCursor(0, 1); 
+   lcd.print("ins. Impronta...");
+   lcd.setCursor(4, 1); 
+   
+    do{
+    esitoLettura = leggiImpronta();
+    }while(esitoLettura==false && now()<secondiStop);
+      
+   //codice per la visualizzazione su lcd
+  lcd.setCursor(0, 1); 
+   lcd.print("Ins:");
+   lcd.setCursor(4, 1);
+   pulisciLCD();
+   
+    if(esitoLettura){
+      apri();
+    }
+    else
+    {
+      Serial.println("Errore Impronta");
+      }
+   Serial.print("Impronta appartenente a ID: ");
+   Serial.println(ultimoIdRilevato);
+   pulisciLCD();
+   lettura="";
+   message="";
+   
+    stato=0;
+    
+  }
  
 uint8_t getFingerprintID() {
   uint8_t p = finger.getImage();
@@ -440,15 +498,17 @@ if(fineMSGPERC){
     Serial.println(password);
 
   //!!!^^^!!! DA IMPLEMENTARE
-/*String messRitorno=getCredenzialiLogin(username, password);
+String messRitorno=findCredenzialiUser(username, password);
       String msgResponse="login_response;"+messRitorno+";%";
-      Serial3.write(msgResponse);
-  */
+      Serial.println("Messaggio risposta: "+msgResponse);
+      
+      //Serial3.write(msgResponse);
+      
     if(username=="BeppeL" && password=="c7cc6a1fd6d6b5f4817025cb532b52fa"){
-      Serial3.write("TTRUEE");
+      Serial3.write("TRUE");
       }
       else{
-        Serial3.write("FFALSE");
+        Serial3.write("FALSE");
         }
     fineMSGPERC=false;
     message="";
@@ -571,13 +631,28 @@ if(fineMSGPERC){
          Serial.print("Pin: ");
         Serial.println(pin);
 
+        userDaReg=username;
+        passDaReg=password;
+
+         Serial.print("user da reg: ");
+        Serial.println(userDaReg);
+
+         Serial.print("pass da reg: ");
+        Serial.println(passDaReg);
+
+
       if(pin==pswTest){
-        int id=getIDregistra();
-          registraUserPass (id, username, password);
-          //...
+       if(!verificaUtente(username)){
+         stato=5;
+        }
+        else{
+             Serial.println("username gia esistente");
+            Serial3.write("-2");//username gia esistente
+          }
         }
       else{
-          Serial3.write("-2");//pin errato
+         Serial.println("pin errato");//cj174js -- bc ***NC | 
+          Serial3.write("-1");//pin errato
        }
         
 
@@ -788,10 +863,14 @@ String finfIdUser(String username){
       trovPerc = l_line.indexOf('%'); 
       PuntoVirgola = l_line.indexOf(';');
       String username_locale=l_line.substring(0, PuntoVirgola);
+      Serial.print("User piu user locale:");
+      Serial.println(username+"|"+username_locale);
       if(username == username_locale){
+        Serial.println("Ritorna id: "+id);
         return id;
         }else{
-          return "-1";
+          Serial.println("Ritorna id: -1");
+          return "-1";// non esiste
           }
       l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
       trovPerc = l_line.indexOf('%'); 
@@ -803,16 +882,18 @@ String finfIdUser(String username){
     }
   }
 }
-String verificaUtente(String username)
+boolean verificaUtente(String username)
  {
   String a = finfIdUser(username);
     if (a!="-1"){
        myFile.close();
-      return "true";
+       Serial.println("Utente cercato nel metodo esiste");
+      return true;//utente esiste
     }
     else if(a=="-1"){
        myFile.close();
-    return "false";
+       Serial.println("Utente cercato nel metodo non esiste");
+    return false;//utente non esiste
     }
     else {
     // if the file didn't open, print an error:
@@ -848,7 +929,7 @@ String verificaUtente(String username)
   }
 }
 
-boolean findCredenzialiUser(String username, String password){
+String findCredenzialiUser(String username, String password){
   String l_line = "";
   String password_locale="";
   String username_locale="";
@@ -883,10 +964,10 @@ boolean findCredenzialiUser(String username, String password){
   }
 
      if (password == password_locale && username == username_locale){
-      return true;
+      return "0";
       }
   
-return false;
+return "-1";
         
   }
 
@@ -989,39 +1070,12 @@ switch (stato){
 
   case 2:
   {
-    Serial.print("Stato dentro stato 2: "); Serial.println(stato);                            
-   Serial.println("caso lettura impronte digitali");
-    secondiStop=now()+10;
-    
-     //codice per la visualizzazione su lcd
-   lcd.setCursor(0, 1); 
-   lcd.print("ins. Impronta...");
-   lcd.setCursor(4, 1); 
-   
-    do{
-    esitoLettura = leggiImpronta();
-    }while(esitoLettura==false && now()<secondiStop);
-      
-   //codice per la visualizzazione su lcd
-  lcd.setCursor(0, 1); 
-   lcd.print("Ins:");
-   lcd.setCursor(4, 1);
-   pulisciLCD();
-   
-    if(esitoLettura){
-      apri();
-    }
-    else
-    {
-      Serial.println("Errore Impronta");
-      }
-   Serial.print("Impronta appartenente a ID: ");
-   Serial.println(ultimoIdRilevato);
-   pulisciLCD();
-   lettura="";
+    letturaImpronteApertura();
+     lettura="";
    message="";
    
     stato=0;
+    
     }break;
 
   case 3:
@@ -1048,10 +1102,16 @@ switch (stato){
 secondiStop=now()+30;
     Serial.println("Ready to enroll a fingerprint! Please Type in the ID # you want to save this finger as...");
       id = readnumber();
+      //id=getIDregistra();
       Serial.print("Enrolling ID #");
       Serial.println(id);
       
       while (!getFingerprintEnroll() && now()<secondiStop);
+
+           letturaImpronte();
+          registraUserPass(ultimoIdRilevato, userDaReg, passDaReg);
+          //...
+
     
     pulisciLCD();
    lettura="";
