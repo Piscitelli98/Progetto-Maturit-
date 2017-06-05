@@ -523,15 +523,26 @@ if(fineMSGPERC){
     Serial.println(username);
      Serial.print("Pin: ");
     Serial.println(pin);
-
-    if(username=="BeppeL" && pin==pswTest){
-      Serial3.write("TTRUEE");
-      stato=2;
-      }
-      else{
-        Serial3.write("FFALSE");
+    if(chiuso){
+       if(username=="BeppeL"){
+        if(pin==pswTest){
+          Serial3.write("0");
+          stato=2;
         }
-    
+          }
+        else{
+          Serial3.write("-2");//pin errato
+        }
+        else{
+          Serial3.write("-1");//username errato
+          }
+       }
+        else{
+          Serial3.write("-3");//cassaforte gia aperta
+       }
+   
+     fineMSGPERC=false;
+        message="";
     }
      else if(tipoMSG==";"){
     
