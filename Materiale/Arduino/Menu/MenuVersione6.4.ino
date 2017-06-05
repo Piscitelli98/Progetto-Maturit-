@@ -14,8 +14,9 @@ String pswTest="1998";
 File myFile;
 int id = 1;
 
-//imprinte digitali
+//impronte digitali
 //collegamenti rosso->5v | nero->gnd | verde->d2 | bianco-d3
+int ultimoIdRilevato=-1;
 int getFingerprintIDez();
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&Serial2);
 boolean esitoLettura=false;
@@ -265,7 +266,7 @@ void apri(){
   secondiStop=now()+tempoApertChius;
  
     while(now()<secondiStop){
-    avanti();
+    indietro();
     }
     tuttoSpento();
     secondiStop=0;
@@ -279,7 +280,7 @@ if(!chiuso){// se chiuso è a false quindi è aperto
 secondiStop=now()+tempoApertChius;
     
     while(now()<secondiStop){
-    indietro();
+    avanti();
     }
     tuttoSpento();
      secondiStop=0;
@@ -368,6 +369,7 @@ uint8_t getFingerprintID() {
   }   
   
   // found a match!
+  ultimoIdRilevato=finger.fingerID;
   Serial.print("Found ID #"); Serial.print(finger.fingerID); 
   Serial.print(" with confidence of "); Serial.println(finger.confidence); 
 }
@@ -383,6 +385,7 @@ int getFingerprintIDez() {
   if (p != FINGERPRINT_OK)  return -1;
   
   // found a match!
+  ultimoIdRilevato=finger.fingerID;
   Serial.print("Found ID #"); Serial.print(finger.fingerID); 
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
    esitoLettura=true;
@@ -416,6 +419,7 @@ if(fineMSGPERC){
    String tipoMSG = message.substring(0, primoPuntoVirgola+1);
  Serial.print("messaggio tipo: ");
   Serial.println(tipoMSG);
+
    if(tipoMSG=="login_request;"){
      Serial.println("Dentro loginrequest");
      int trovPerc = message.indexOf('%');
@@ -434,10 +438,115 @@ if(fineMSGPERC){
     Serial.println(username);
      Serial.print("Password: ");
     Serial.println(password);
+
+  //!!!^^^!!! DA IMPLEMENTARE
+/*String messRitorno=getCredenzialiLogin(username, password);
+      String msgResponse="login_response;"+messRitorno+";%";
+      Serial3.write(msgResponse);
+  */
+    if(username=="BeppeL" && password=="c7cc6a1fd6d6b5f4817025cb532b52fa"){
+      Serial3.write("TTRUEE");
+      }
+      else{
+        Serial3.write("FFALSE");
+        }
     fineMSGPERC=false;
     message="";
-    stato=2;
+    //stato=2;
   }
+
+  else if(tipoMSG=="get_datiLog_request;"){
+    //prendo i valori del messaggio
+    Serial.println("Dentro getDatiLog");
+     int trovPerc = message.indexOf('%');
+    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
+     Serial.print("messaggio per user: ");
+  Serial.println(message);
+    int secondoPuntoVirgola = message.indexOf(';');
+    String username=message.substring(0, secondoPuntoVirgola);
+    trovPerc = message.indexOf('%');
+    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+    int terzoPuntoVirgola = message.indexOf(';');
+    Serial.print("messaggio per pass: ");
+  Serial.println(message);
+    String data=message.substring(0, terzoPuntoVirgola);
+    Serial.print("Username: ");
+    Serial.println(username);
+     Serial.print("data: ");
+    Serial.println(data);
+    
+    //richiamo il metodo per trovare nella memoria i dati di log, prima però devo verificare le credenziali dell'username
+    //quindi gli passerò username e la data dei log che devo visualizzare
+                //!!!^^^!!!! METODO DA IMPLEMENTARE
+    /*String messRitorno=getDatiLog(username, data);
+        if(messRitorno.length()<3){
+          String msgResponse="get_datiLog_response;"+messRitorno+";%";
+          Serial3.write(msgResponse);
+          }
+         else{
+          String msgResponse="get_datiLog_response;0;%";
+          }
+    Serial3.write(messRitorno);
+    Serial3.write("get_datiLog_end;%");*/
+    fineMSGPERC=false;
+    message="";
+    
+    }
+   else if(tipoMSG=="close_request;"){
+    Serial.println("Dentro closerequest");
+    stato=4;
+    if(chiuso){
+      Serial3.write("close_response;-1;%");
+      }
+     else if(!chiuso){
+      Serial3.write("close_response;0;%");
+      }
+    
+     fineMSGPERC=false;
+    message="";
+    }
+   else if(tipoMSG=="open_request;"){
+       Serial.println("Dentro getDatiLog");
+     int trovPerc = message.indexOf('%');
+    message=message.substring(primoPuntoVirgola+1, trovPerc+1);
+     Serial.print("messaggio per user: ");
+  Serial.println(message);
+    int secondoPuntoVirgola = message.indexOf(';');
+    String username=message.substring(0, secondoPuntoVirgola);
+    trovPerc = message.indexOf('%');
+    message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+    int terzoPuntoVirgola = message.indexOf(';');
+    Serial.print("messaggio per pass: ");
+  Serial.println(message);
+    String pin=message.substring(0, terzoPuntoVirgola);
+    Serial.print("Username: ");
+    Serial.println(username);
+     Serial.print("Pin: ");
+    Serial.println(pin);
+    if(chiuso){
+       if(username=="BeppeL"){
+            if(pin==pswTest){
+              Serial3.write("0");
+              stato=2;
+            }
+              else{
+              Serial3.write("-2");//pin errato
+            }
+          }        
+        else{
+          Serial3.write("-1");//username errato
+          }
+       }
+        else{
+          Serial3.write("-3");//cassaforte gia aperta
+       }
+   
+     fineMSGPERC=false;
+        message="";
+    }
+     else if(tipoMSG==";"){
+    
+    }
    
  
     }
@@ -447,6 +556,163 @@ if(fineMSGPERC){
     //message="";
     }*/
 }
+
+//metodo per aggiunta di un impronta ()()()()()()()
+    uint8_t readnumber(void) {
+      uint8_t num = 0;
+      boolean validnum = false; 
+      while (1) {
+        while (! Serial.available());
+        char c = Serial.read();
+        if (isdigit(c)) {
+           num *= 10;
+           num += c - '0';
+           validnum = true;
+        } else if (validnum) {
+          return num;
+        }
+      }
+    }
+
+uint8_t getFingerprintEnroll() {
+
+  int p = -1;
+  Serial.print("Waiting for valid finger to enroll as #"); Serial.println(id);
+  while (p != FINGERPRINT_OK) {
+    p = finger.getImage();
+    switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image taken");
+      break;
+    case FINGERPRINT_NOFINGER:
+      Serial.println(".");
+      break;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      break;
+    case FINGERPRINT_IMAGEFAIL:
+      Serial.println("Imaging error");
+      break;
+    default:
+      Serial.println("Unknown error");
+      break;
+    }
+  }
+
+  // OK success!
+
+  p = finger.image2Tz(1);
+  switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image converted");
+      break;
+    case FINGERPRINT_IMAGEMESS:
+      Serial.println("Image too messy");
+      return p;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      return p;
+    case FINGERPRINT_FEATUREFAIL:
+      Serial.println("Could not find fingerprint features");
+      return p;
+    case FINGERPRINT_INVALIDIMAGE:
+      Serial.println("Could not find fingerprint features");
+      return p;
+    default:
+      Serial.println("Unknown error");
+      return p;
+  }
+  
+  Serial.println("Remove finger");
+  delay(2000);
+  p = 0;
+  while (p != FINGERPRINT_NOFINGER) {
+    p = finger.getImage();
+  }
+  Serial.print("ID "); Serial.println(id);
+  p = -1;
+  Serial.println("Place same finger again");
+  while (p != FINGERPRINT_OK) {
+    p = finger.getImage();
+    switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image taken");
+      break;
+    case FINGERPRINT_NOFINGER:
+      Serial.print(".");
+      break;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      break;
+    case FINGERPRINT_IMAGEFAIL:
+      Serial.println("Imaging error");
+      break;
+    default:
+      Serial.println("Unknown error");
+      break;
+    }
+  }
+
+  // OK success!
+
+  p = finger.image2Tz(2);
+  switch (p) {
+    case FINGERPRINT_OK:
+      Serial.println("Image converted");
+      break;
+    case FINGERPRINT_IMAGEMESS:
+      Serial.println("Image too messy");
+      return p;
+    case FINGERPRINT_PACKETRECIEVEERR:
+      Serial.println("Communication error");
+      return p;
+    case FINGERPRINT_FEATUREFAIL:
+      Serial.println("Could not find fingerprint features");
+      return p;
+    case FINGERPRINT_INVALIDIMAGE:
+      Serial.println("Could not find fingerprint features");
+      return p;
+    default:
+      Serial.println("Unknown error");
+      return p;
+  }
+  
+  // OK converted!
+  Serial.print("Creating model for #");  Serial.println(id);
+  
+  p = finger.createModel();
+  if (p == FINGERPRINT_OK) {
+    Serial.println("Prints matched!");
+  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
+    Serial.println("Communication error");
+    return p;
+  } else if (p == FINGERPRINT_ENROLLMISMATCH) {
+    Serial.println("Fingerprints did not match");
+    return p;
+  } else {
+    Serial.println("Unknown error");
+    return p;
+  }   
+  
+  Serial.print("ID "); Serial.println(id);
+  p = finger.storeModel(id);
+  if (p == FINGERPRINT_OK) {
+    Serial.println("Stored!");
+  } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
+    Serial.println("Communication error");
+    return p;
+  } else if (p == FINGERPRINT_BADLOCATION) {
+    Serial.println("Could not store in that location");
+    return p;
+  } else if (p == FINGERPRINT_FLASHERR) {
+    Serial.println("Error writing to flash");
+    return p;
+  } else {
+    Serial.println("Unknown error");
+    return p;
+  }   
+}
+
  void lettura_sd_utenti(){
   myFile = SD.open("utenti.txt");
   if (myFile) {
@@ -463,6 +729,168 @@ if(fineMSGPERC){
     Serial.println("error opening utenti.txt");
   }
 } 
+
+//meto di per la memoriaaaaaaa
+String finfIdUser(String username){
+  int riga=0;
+  String l_line = "";
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+  //open the file here
+  while (myFile.available() != 0) {  
+      
+      //A inconsistent line length may lead to heap memory fragmentation        
+      l_line = myFile.readStringUntil('\n');  
+      int trovPerc = l_line.indexOf('%'); 
+      int PuntoVirgola = l_line.indexOf(';');
+      String id=l_line.substring(0, PuntoVirgola);     
+      l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+      trovPerc = l_line.indexOf('%'); 
+      PuntoVirgola = l_line.indexOf(';');
+      String username_locale=l_line.substring(0, PuntoVirgola);
+      if(username == username_locale){
+        return id;
+        }else{
+          return "-1";
+          }
+      l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+      trovPerc = l_line.indexOf('%'); 
+      PuntoVirgola = l_line.indexOf(';');
+      String password=l_line.substring(0, PuntoVirgola);
+      
+      //no blank lines are anticipated        
+       return id;  
+    }
+  }
+}
+String verificaUtente(String username)
+ {
+  String a = finfIdUser(username);
+    if (a!="-1"){
+       myFile.close();
+      return "true";
+    }
+    else if(a=="-1"){
+       myFile.close();
+    return "false";
+    }
+    else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening utenti.txt");
+  }
+
+    // close the file:
+    myFile.close();
+
+  }
+
+  void registraUserPass (int id,String username,String password){
+  
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+  myFile = SD.open("utenti.txt", FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    Serial.print("Writing to utenti.txt...");
+    myFile.print(id);
+    myFile.print(";");
+    myFile.print(username);
+    myFile.print(";");
+    myFile.print(password);
+    myFile.println(";");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+}
+
+boolean findCredenzialiUser(String username, String password){
+  String l_line = "";
+  String password_locale="";
+  String username_locale="";
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+  //open the file here
+  while (myFile.available() != 0) {  
+    
+    //A inconsistent line length may lead to heap memory fragmentation        
+    l_line = myFile.readStringUntil('\n');  
+    int trovPerc = l_line.indexOf('%'); 
+    int PuntoVirgola = l_line.indexOf(';');
+    String id=l_line.substring(0, PuntoVirgola);     
+    l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+    trovPerc = l_line.indexOf('%'); 
+    PuntoVirgola = l_line.indexOf(';');
+    username_locale=l_line.substring(0, PuntoVirgola);
+    l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+    trovPerc = l_line.indexOf('%'); 
+    PuntoVirgola = l_line.indexOf(';');
+    password_locale=l_line.substring(0, PuntoVirgola);
+   
+          //no blank lines are anticipated        
+    
+  }
+ 
+    // close the file:
+    myFile.close();
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening utenti.txt");
+  }
+
+     if (password == password_locale && username == username_locale){
+      return true;
+      }
+  
+return false;
+        
+  }
+
+  void setlog(int id,int giorno, int mese, int anno, int ora, int minuti, int secondi){
+  
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
+
+  String nomeFile=String(giorno)+"_"+String(mese)+"_"+String(anno)+".txt";
+  myFile = SD.open(nomeFile, FILE_WRITE);
+
+  // if the file opened okay, write to it:
+  if (myFile) {
+    //Serial.print("Writing to"+myFile+".txt...");
+    myFile.print(id);
+    myFile.print(";");
+    myFile.print(giorno);
+    myFile.print(";");
+    myFile.print(mese);
+    myFile.print(";");
+    myFile.print(anno);
+    myFile.print(";");
+    myFile.print(ora);
+    myFile.print(";");
+    myFile.print(minuti);
+    myFile.print(";");
+    myFile.print(secondi);
+    myFile.println(";");
+    // close the file:
+    myFile.close();
+    Serial.println("done.");
+  } else {
+    // if the file didn't open, print an error:
+    Serial.println("error opening test.txt");
+  }
+
+
+ 
+    // close the file:
+    myFile.close();
+ 
+}
+
+
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
 
 
@@ -547,6 +975,8 @@ switch (stato){
     {
       Serial.println("Errore Impronta");
       }
+   Serial.print("Impronta appartenente a ID: ");
+   Serial.println(ultimoIdRilevato);
    pulisciLCD();
    lettura="";
    message="";
@@ -574,6 +1004,15 @@ switch (stato){
 
   case 5:
   {
+    //memorizzazione nuova impronta digitale
+secondiStop=now()+30;
+    Serial.println("Ready to enroll a fingerprint! Please Type in the ID # you want to save this finger as...");
+      id = readnumber();
+      Serial.print("Enrolling ID #");
+      Serial.println(id);
+      
+      while (!getFingerprintEnroll() && now()<secondiStop);
+    
     pulisciLCD();
    lettura="";
     stato=0;
