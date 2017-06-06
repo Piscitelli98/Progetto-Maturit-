@@ -948,6 +948,29 @@ String finfUserById(String id){
   }
 }
 
+String findLastId(String id){
+  int riga=0;
+  String l_line = "";
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+  //open the file here
+  while (myFile.available() != 0) {  
+      //1;user;pass;
+      //A inconsistent line length may lead to heap memory fragmentation        
+      //Cancellami
+      //String l_lineTemp = myFile.read();
+      //Serial.println("Mastro prova: "+l_lineTemp);
+      //
+      l_line = myFile.readStringUntil('\n');  
+      //int trovPerc = l_line.indexOf('%'); 
+      int trovPerc = l_line.length();
+      int PuntoVirgola = l_line.indexOf(';');
+      String id_locale=l_line.substring(0, PuntoVirgola);     
+    }
+    return id_locale; 
+  }
+}
+
 boolean verificaUtente(String username)
  {
   String a = finfIdUser(username);
@@ -1059,11 +1082,11 @@ return "-1";
   if (myFile) {
     //Serial.print("Writing to"+myFile+".txt...");
     myFile.print(id);
-    myFile.print(";");
+    myFile.print("-");
     myFile.print(giorno);
-    myFile.print(";");
+    myFile.print("-");
     myFile.print(mese);
-    myFile.print(";");
+    myFile.print("-");
     myFile.print(anno);
     myFile.print(";");
     myFile.print(ora);
