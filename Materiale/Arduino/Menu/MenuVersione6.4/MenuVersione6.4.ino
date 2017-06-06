@@ -1033,11 +1033,11 @@ String findCredenzialiUser(String username, String password){
   }
 
      if (password == password_locale && username == username_locale){
-      
+      delay(600);
       Serial3.write("login_response;0;%");
       return "0";
       }
-   
+   delay(600);
   Serial3.write("login_response;-1;%");
 return "-1";
         
