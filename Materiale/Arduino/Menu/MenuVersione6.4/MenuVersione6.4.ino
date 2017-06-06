@@ -343,14 +343,17 @@ void letturaImpronteApertura(){
     do{
     esitoLettura = leggiImpronta();
     }while(esitoLettura==false && now()<secondiStop);
-      
+      Serial.println("Finita lettura");
    //codice per la visualizzazione su lcd
   lcd.setCursor(0, 1); 
    lcd.print("Ins:");
    lcd.setCursor(4, 1);
    pulisciLCD();
-   
+   Serial.println("Inizio esito lettura");
     if(esitoLettura){
+      Serial.println("Dentro esito lettura e salvataggio");
+      setlog(ultimoIdRilevato,day(), month(), year(), hour(), minute(), second());
+      Serial.println("finito salvataggio");
       apri();
     }
     else
@@ -671,7 +674,9 @@ String messRitorno=findCredenzialiUser(username, password);
     else if(tipoMSG==";"){
       
     }
-   
+   else if(tipoMSG==";"){
+      
+    }
  
     }
   /* if(message==logIn){stato=2; Serial.println("dentro if login==message, stato = 2");}
@@ -898,6 +903,51 @@ String finfIdUser(String username){
     }
   }
 }
+
+String finfUserById(String id){
+  int riga=0;
+  String l_line = "";
+  myFile = SD.open("utenti.txt");
+  if (myFile) {
+  //open the file here
+  while (myFile.available() != 0) {  
+      //1;user;pass;
+      //A inconsistent line length may lead to heap memory fragmentation        
+      //Cancellami
+      //String l_lineTemp = myFile.read();
+      //Serial.println("Mastro prova: "+l_lineTemp);
+      //
+      l_line = myFile.readStringUntil('\n');  
+      //int trovPerc = l_line.indexOf('%'); 
+      int trovPerc = l_line.length();
+      int PuntoVirgola = l_line.indexOf(';');
+      String id_locale=l_line.substring(0, PuntoVirgola);     
+      l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+      //trovPerc = l_line.indexOf('%'); 
+      trovPerc = l_line.length();
+      PuntoVirgola = l_line.indexOf(';');
+      String username_locale=l_line.substring(0, PuntoVirgola);
+      Serial.print("User piu user locale:");
+    
+      if(id == id_locale){
+        Serial.println("Ritorna username: "+username_locale );
+        return username_locale;
+        }else{
+          Serial.println("Ritorna id: -1");
+          return "-1";// non esiste
+          }
+      l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+     // trovPerc = l_line.indexOf('%'); 
+     trovPerc = l_line.length();
+      PuntoVirgola = l_line.indexOf(';');
+      String password=l_line.substring(0, PuntoVirgola);
+      
+      //no blank lines are anticipated        
+       return id;  
+    }
+  }
+}
+
 boolean verificaUtente(String username)
  {
   String a = finfIdUser(username);
@@ -997,11 +1047,15 @@ return "-1";
   
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
+  
+  //String nomeFile=String(giorno)+"_"+String(mese)+"_"+String(anno);
+  //Serial.println("Nome file di log: "+nomeFile);
+  myFile = SD.open("log.txt", FILE_WRITE);
 
-  String nomeFile=String(giorno)+"_"+String(mese)+"_"+String(anno)+".txt";
-  myFile = SD.open(nomeFile, FILE_WRITE);
-
+  
   // if the file opened okay, write to it:
+  
+    
   if (myFile) {
     //Serial.print("Writing to"+myFile+".txt...");
     myFile.print(id);
@@ -1023,7 +1077,7 @@ return "-1";
     Serial.println("done.");
   } else {
     // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    Serial.println("error opening file");
   }
 
 
