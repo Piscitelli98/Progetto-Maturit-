@@ -504,12 +504,21 @@ String messRitorno=findCredenzialiUser(username, password);
       
       //Serial3.write(msgResponse);
       
-    if(username=="BeppeL" && password=="c7cc6a1fd6d6b5f4817025cb532b52fa"){
-      Serial3.write("TRUE");
+    /*if(username=="BeppeL" && password=="c7cc6a1fd6d6b5f4817025cb532b52fa"){
+      Serial3.write("TTRUEE");
       }
       else{
-        Serial3.write("FALSE");
-        }
+        Serial3.write("FFALSE");
+        }*/
+
+    if(messRitorno=="0"){
+      Serial.write("TTRUEE");
+      //Serial3.write("TTRUEE");
+      }
+      else{
+        Serial.write("FFALSE");
+        //Serial3.write("FFALSE");
+        }    
     fineMSGPERC=false;
     message="";
     //stato=2;
@@ -618,7 +627,7 @@ String messRitorno=findCredenzialiUser(username, password);
         Serial.print("messaggio per pass: ");
         Serial.println(message);
         String username=message.substring(0, terzoPuntoVirgola);
-        message=message.substring(secondoPuntoVirgola+1, trovPerc+1);
+        message=message.substring(terzoPuntoVirgola+1, trovPerc+1);
          int quartoPuntoVirgola = message.indexOf(';');
         Serial.print("messaggio per pass: ");
         Serial.println(message);
@@ -853,14 +862,20 @@ String finfIdUser(String username){
   if (myFile) {
   //open the file here
   while (myFile.available() != 0) {  
-      
+      //1;user;pass;
       //A inconsistent line length may lead to heap memory fragmentation        
+      //Cancellami
+      //String l_lineTemp = myFile.read();
+      //Serial.println("Mastro prova: "+l_lineTemp);
+      //
       l_line = myFile.readStringUntil('\n');  
-      int trovPerc = l_line.indexOf('%'); 
+      //int trovPerc = l_line.indexOf('%'); 
+      int trovPerc = l_line.length();
       int PuntoVirgola = l_line.indexOf(';');
       String id=l_line.substring(0, PuntoVirgola);     
       l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
-      trovPerc = l_line.indexOf('%'); 
+      //trovPerc = l_line.indexOf('%'); 
+      trovPerc = l_line.length();
       PuntoVirgola = l_line.indexOf(';');
       String username_locale=l_line.substring(0, PuntoVirgola);
       Serial.print("User piu user locale:");
@@ -873,7 +888,8 @@ String finfIdUser(String username){
           return "-1";// non esiste
           }
       l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
-      trovPerc = l_line.indexOf('%'); 
+     // trovPerc = l_line.indexOf('%'); 
+     trovPerc = l_line.length();
       PuntoVirgola = l_line.indexOf(';');
       String password=l_line.substring(0, PuntoVirgola);
       
@@ -940,15 +956,18 @@ String findCredenzialiUser(String username, String password){
     
     //A inconsistent line length may lead to heap memory fragmentation        
     l_line = myFile.readStringUntil('\n');  
-    int trovPerc = l_line.indexOf('%'); 
+    //int trovPerc = l_line.indexOf('%'); 
+    int trovPerc = l_line.length(); 
     int PuntoVirgola = l_line.indexOf(';');
     String id=l_line.substring(0, PuntoVirgola);     
     l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
-    trovPerc = l_line.indexOf('%'); 
+   //trovPerc = l_line.indexOf('%'); 
+   trovPerc = l_line.length();
     PuntoVirgola = l_line.indexOf(';');
     username_locale=l_line.substring(0, PuntoVirgola);
     l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
-    trovPerc = l_line.indexOf('%'); 
+   // trovPerc = l_line.indexOf('%'); 
+   trovPerc = l_line.length();
     PuntoVirgola = l_line.indexOf(';');
     password_locale=l_line.substring(0, PuntoVirgola);
    
@@ -964,9 +983,12 @@ String findCredenzialiUser(String username, String password){
   }
 
      if (password == password_locale && username == username_locale){
+      
+      Serial3.write("login_response;0;%");
       return "0";
       }
-  
+   
+  Serial3.write("login_response;-1;%");
 return "-1";
         
   }
