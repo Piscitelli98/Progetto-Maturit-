@@ -354,14 +354,19 @@ void letturaImpronteApertura(){
       Serial.println("Dentro esito lettura e salvataggio");
       setlog(ultimoIdRilevato,day(), month(), year(), hour(), minute(), second());
       Serial.println("finito salvataggio");
+      Serial.print("Impronta appartenente a ID: ");
+   Serial.println(ultimoIdRilevato);
+      ultimoIdRilevato=-1;
       apri();
     }
     else
     {
+      Serial3.write("open_response;-4;%");//impronta errata
+      Serial.print("Impronta appartenente a ID: ");
+   Serial.println(ultimoIdRilevato);
       Serial.println("Errore Impronta");
       }
-   Serial.print("Impronta appartenente a ID: ");
-   Serial.println(ultimoIdRilevato);
+   
    pulisciLCD();
    lettura="";
    message="";
@@ -598,19 +603,19 @@ String messRitorno=findCredenzialiUser(username, password);
     if(chiuso){
        if(username=="BeppeL"){
             if(pin==pswTest){
-              Serial3.write("0");
+              Serial3.write("open_response;0;%");
               stato=2;
             }
               else{
-              Serial3.write("-2");//pin errato
+              Serial3.write("open_response;-2;%");//pin errato
             }
           }        
         else{
-          Serial3.write("-1");//username errato
+          Serial3.write("open_response;-1;%");//username errato
           }
        }
         else{
-          Serial3.write("-3");//cassaforte gia aperta
+          Serial3.write("open_response;-3;%");//cassaforte gia aperta
        }
    
      fineMSGPERC=false;
@@ -659,12 +664,12 @@ String messRitorno=findCredenzialiUser(username, password);
         }
         else{
              Serial.println("username gia esistente");
-            Serial3.write("-2");//username gia esistente
+            Serial3.write("registra_response;-2;%");//username gia esistente
           }
         }
       else{
          Serial.println("pin errato");//cj174js -- bc ***NC | 
-          Serial3.write("-1");//pin errato
+          Serial3.write("registra_response;-1;%");//pin errato
        }
         
 
@@ -706,6 +711,7 @@ String messRitorno=findCredenzialiUser(username, password);
 uint8_t getFingerprintEnroll() {
 
   int p = -1;
+  
   Serial.print("Waiting for valid finger to enroll as #"); Serial.println(id);
   while (p != FINGERPRINT_OK) {
     p = finger.getImage();
@@ -948,9 +954,10 @@ String finfUserById(String id){
   }
 }
 
-String findLastId(String id){
+int findLastId(){
   int riga=0;
   String l_line = "";
+   String id_locale="";
   myFile = SD.open("utenti.txt");
   if (myFile) {
   //open the file here
@@ -965,9 +972,13 @@ String findLastId(String id){
       //int trovPerc = l_line.indexOf('%'); 
       int trovPerc = l_line.length();
       int PuntoVirgola = l_line.indexOf(';');
-      String id_locale=l_line.substring(0, PuntoVirgola);     
+      id_locale=l_line.substring(0, PuntoVirgola);
+      Serial.println("Id letto da metodo: "+id_locale);
     }
-    return id_locale; 
+    int id_ret=id_locale.toInt();
+    id_ret++;
+    Serial.println("Id letto da metodo$: "+id_ret);
+    return id_ret; 
   }
 }
 
@@ -1012,8 +1023,10 @@ boolean verificaUtente(String username)
     // close the file:
     myFile.close();
     Serial.println("done.");
+     Serial3.write("registra_response;0;%");//registrazione avvenuta correttamente
   } else {
     // if the file didn't open, print an error:
+     Serial3.write("registra_response;-4;%");//errore file
     Serial.println("error opening test.txt");
   }
 }
@@ -1026,7 +1039,7 @@ String findCredenzialiUser(String username, String password){
   if (myFile) {
   //open the file here
   while (myFile.available() != 0) {  
-    
+    Serial.println("dentro lettura file");
     //A inconsistent line length may lead to heap memory fragmentation        
     l_line = myFile.readStringUntil('\n');  
     //int trovPerc = l_line.indexOf('%'); 
@@ -1054,7 +1067,8 @@ String findCredenzialiUser(String username, String password){
     // if the file didn't open, print an error:
     Serial.println("error opening utenti.txt");
   }
-
+       Serial.println("Password|pass locale"+password+"|"+password_locale);
+       Serial.println("Username|user locale"+username+"|"+username_locale);
      if (password == password_locale && username == username_locale){
       delay(600);
       Serial3.write("login_response;0;%");
@@ -1198,12 +1212,13 @@ switch (stato){
   case 5:
   {
     //memorizzazione nuova impronta digitale
-secondiStop=now()+30;
+      secondiStop=now()+30;
     Serial.println("Ready to enroll a fingerprint! Please Type in the ID # you want to save this finger as...");
-      id = readnumber();
+      //id = readnumber();
+      id=findLastId();
       //id=getIDregistra();
       Serial.print("Enrolling ID #");
-      Serial.println(id);
+     // Serial.println(id);
       
       while (!getFingerprintEnroll() && now()<secondiStop);
 
