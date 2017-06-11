@@ -1,0 +1,15 @@
+title cassaforte 2.0 Diagramma di sequenza caso richiestDatiAccesso
+
+
+participant utente
+participant appAndroid
+participant cassaforte
+
+note right of utente: utente preme il tasto che scarica i dati \ndopo aver effettuato la login
+appAndroid->cassaforte: connessione
+cassaforte->appAndroid: connesso
+appAndroid->cassaforte: DL_request;username;data(gg/mm/aa);%
+cassaforte->appAndroid: DL_response;username;data(gg/mm/aa);ora(HH:mm);% \nusername;data(gg/mm/aa);ora(HH:mm);% \nusername;data(gg/mm/aa);ora(HH:mm);% \n...
+note right of cassaforte: il contenuto all'interno delle \nparenesi indica il formato in cui \ndevono essere mandati i dati.
+note right of cassaforte:Gli accessi vanno mandati \ncon un'unica stringa, e ogni \naccesso è seprato dall'altro \ndal carattere ' % '.
+appAndroid->cassaforte: disconnessione
