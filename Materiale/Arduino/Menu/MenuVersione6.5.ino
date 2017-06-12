@@ -532,7 +532,7 @@ String messRitorno=findCredenzialiUser(username, password);
     //stato=2;
   }
 
-  else if(tipoMSG=="get_datiLog_request;"){
+  else if(tipoMSG=="DL_request;"){
     //prendo i valori del messaggio
     Serial.println("Dentro getDatiLog");
      int trovPerc = message.indexOf('%');
@@ -555,16 +555,17 @@ String messRitorno=findCredenzialiUser(username, password);
     //richiamo il metodo per trovare nella memoria i dati di log, prima però devo verificare le credenziali dell'username
     //quindi gli passerò username e la data dei log che devo visualizzare
                 //!!!^^^!!!! METODO DA IMPLEMENTARE
-    /*String messRitorno=getDatiLog(username, data);
+                Serial.println("inizio cercare dati log");
+    String messRitorno=getDatiLog(username, data);
         if(messRitorno.length()<3){
-          String msgResponse="get_datiLog_response;"+messRitorno+";%";
-          Serial3.write(msgResponse);
+          String msgResponse="DL_response;"+messRitorno+";%";
+          Serial3.write(msgResponse.c_str());
           }
          else{
           String msgResponse="get_datiLog_response;0;%";
           }
-    Serial3.write(messRitorno);
-    Serial3.write("get_datiLog_end;%");*/
+    Serial3.write(messRitorno.c_str());
+    Serial3.write("get_datiLog_end;%");
     fineMSGPERC=false;
     message="";
     
@@ -866,6 +867,9 @@ uint8_t getFingerprintEnroll() {
 } 
 
 //meto di per la memoriaaaaaaa
+
+
+
 String finfIdUser(String username){
   int riga=0;
   String l_line = "";
@@ -907,7 +911,7 @@ String finfIdUser(String username){
   }
 }
 
-String finfUserById(String id){
+String findUserById(String id){
   int riga=0;
   String l_line = "";
   myFile = SD.open("utenti.txt");
@@ -935,19 +939,18 @@ String finfUserById(String id){
       if(id == id_locale){
         Serial.println("Ritorna username: "+username_locale );
         return username_locale;
-        }else{
-          Serial.println("Ritorna id: -1");
-          return "-1";// non esiste
-          }
+        }
       l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
      // trovPerc = l_line.indexOf('%'); 
      trovPerc = l_line.length();
       PuntoVirgola = l_line.indexOf(';');
       String password=l_line.substring(0, PuntoVirgola);
-      
-      //no blank lines are anticipated        
-       return id;  
+
     }
+
+          Serial.println("user non esiste");
+          return "utente sconosciuto";// non esiste
+          
   }
 }
 
@@ -1093,11 +1096,11 @@ return "-1";
   if (myFile) {
     //Serial.print("Writing to"+myFile+".txt...");
     myFile.print(id);
-    myFile.print("-");
+    myFile.print(";");
     myFile.print(giorno);
-    myFile.print("-");
+    myFile.print("/");
     myFile.print(mese);
-    myFile.print("-");
+    myFile.print("/");
     myFile.print(anno);
     myFile.print(";");
     myFile.print(ora);
@@ -1120,7 +1123,69 @@ return "-1";
     myFile.close();
  
 }
+String getDatiLog(String username, String data){
 
+ String l_line = "";
+  String messaggioCompleto="";
+  Serial.println("dentro metodo getdatilog");
+  myFile = SD.open("log.txt");
+  if(verificaUtente(username)){
+       if (myFile){
+        //open the file here
+        while (myFile.available() != 0) {  
+          Serial.println("dentro lettura file di log");
+          //A inconsistent line length may lead to heap memory fragmentation        
+          l_line = myFile.readStringUntil('\n');  
+          //int trovPerc = l_line.indexOf('%'); 
+          int trovPerc = l_line.length(); 
+          int PuntoVirgola = l_line.indexOf(';');
+          String id=l_line.substring(0, PuntoVirgola);     
+          l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+         //trovPerc = l_line.indexOf('%'); 
+         trovPerc = l_line.length();
+          PuntoVirgola = l_line.indexOf(';');
+          String data_locale=l_line.substring(0, PuntoVirgola);
+          l_line=l_line.substring(PuntoVirgola+1, trovPerc+1);
+         // trovPerc = l_line.indexOf('%'); 
+         trovPerc = l_line.length();
+          PuntoVirgola = l_line.indexOf(';');
+          String ora=l_line.substring(0, trovPerc);
+         
+                //no blank lines are anticipated    
+           Serial.println("data | data locale: "+ data +" | "+data_locale);
+          if(data==data_locale){
+            //String userDaId=findUserById(id);
+            String userDaId="prv";
+            Serial.println("id e user corrispondente: "+ id+ " | "+ userDaId);
+            messaggioCompleto+=userDaId+";"+data+";"+ora+";%";
+            Serial.println("messaggio corrispondente fino ora: "+ messaggioCompleto);
+            }
+        }      
+          // close the file:
+          myFile.close();
+        } else {
+          // if the file didn't open, print an error:
+          Serial.println("error opening utenti.txt");
+        }
+        Serial.println("messaggio finito: "+ messaggioCompleto);
+
+
+  //char buffer[messaggioCompleto.length()];
+  //sprintf(buffer, "%d", messaggioCompleto);
+
+  //Serial3.write(buffer, strlen(buffer));
+        
+        Serial3.write(messaggioCompleto.c_str());
+        //Serial3.write(p);
+      
+          
+          }
+          else{
+            Serial.println("Username non trovato");
+            }
+ 
+  return messaggioCompleto;
+  }
 
 //---------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!___________
 
