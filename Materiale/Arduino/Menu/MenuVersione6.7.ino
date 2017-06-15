@@ -364,7 +364,8 @@ void letturaImpronteApertura(){
     {
       Serial3.write("open_response;-4;%");//impronta errata
       Serial.print("Impronta appartenente a ID: ");
-   Serial.println(ultimoIdRilevato);
+      Serial.println(ultimoIdRilevato);
+      setlog(ultimoIdRilevato,day(), month(), year(), hour(), minute(), second());
       Serial.println("Errore Impronta");
       }
    
@@ -565,8 +566,8 @@ String messRitorno=findCredenzialiUser(username, password);
          else{
           String msgResponse="DL_response;0;%";
           }
-    Serial3.write(messRitorno.c_str());
-    Serial3.write("get_datiLog_end;%");
+    //Serial3.write(messRitorno.c_str());
+    Serial3.write(";&%");
     fineMSGPERC=false;
     message="";
     
@@ -976,6 +977,7 @@ int findLastId(){
     int id_ret=id_locale.toInt();
     id_ret++;
     Serial.println("Id letto da metodo$: "+id_ret);
+    myFile.close();
     return id_ret; 
   }
 }
@@ -1007,6 +1009,7 @@ boolean verificaUtente(String username)
   
   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
+  myFile.close();
   myFile = SD.open("utenti.txt", FILE_WRITE);
 
   // if the file opened okay, write to it:
@@ -1033,6 +1036,7 @@ String findCredenzialiUser(String username, String password){
   String l_line = "";
   String password_locale="";
   String username_locale="";
+ 
   myFile = SD.open("utenti.txt");
   if (myFile) {
   //open the file here
@@ -1060,6 +1064,7 @@ String findCredenzialiUser(String username, String password){
        Serial.println("Username|user locale"+username+"|"+username_locale);
      if (password == password_locale && username == username_locale){
       delay(600);
+      myFile.close();
       Serial3.write("login_response;0;%");
       return "0";
       }
@@ -1073,6 +1078,7 @@ String findCredenzialiUser(String username, String password){
   }
       
    delay(600);
+   myFile.close();
   Serial3.write("login_response;-1;%");
 return "-1";
         
@@ -1280,12 +1286,12 @@ switch (stato){
   case 5:
   {
     //memorizzazione nuova impronta digitale
-      secondiStop=now()+30;
+    secondiStop=now()+30;
     Serial.println("Ready to enroll a fingerprint! Please Type in the ID # you want to save this finger as...");
       //id = readnumber();
-      id=findLastId();
+    id=findLastId();
       //id=getIDregistra();
-      Serial.print("Enrolling ID #");
+    Serial.print("Enrolling ID #");
      // Serial.println(id);
       
       while (!getFingerprintEnroll() && now()<secondiStop);
